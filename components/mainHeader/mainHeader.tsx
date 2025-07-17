@@ -3,7 +3,13 @@ import { GLOBAL_STYLES } from "../../lib/globalStyles";
 import { LinearGradient } from "expo-linear-gradient";
 import ProgressContainer from "./progressContainer/progressContainer";
 
-export default function MainHeader() {
+export default function MainHeader({
+  totalXp,
+  totalCompletedXp,
+}: {
+  totalXp: number;
+  totalCompletedXp: number;
+}) {
   return (
     <LinearGradient
       colors={[GLOBAL_STYLES.accentColor10, GLOBAL_STYLES.accentColor5]}
@@ -30,12 +36,12 @@ export default function MainHeader() {
       <ProgressContainer
         data={{
           headerTitle: "Daily Quest Progress",
-          headerSubTitle: "30 / 120 XP",
+          headerSubTitle: `${totalCompletedXp} / ${totalXp} XP`,
           headerStats: null,
         }}
         progressBarData={{
           height: 12,
-          width: 25,
+          width: (totalCompletedXp / totalXp) * 100,
           colors: GLOBAL_STYLES.blueProgressBar,
         }}
       />

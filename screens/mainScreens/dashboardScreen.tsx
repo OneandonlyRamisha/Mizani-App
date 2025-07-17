@@ -3,12 +3,12 @@ import ScreenContainer from "../../components/screenContainer/screenContainer";
 import MainHeader from "../../components/mainHeader/mainHeader";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { GLOBAL_STYLES } from "../../lib/globalStyles";
-import { MOCK_DATA } from "../../lib/mockData";
 import HabitsComponent from "../../components/habitsComponent/habitsComponent";
 import AddHabitBtn from "../../components/addHabitBtn/addHabitBtn";
 import { useMemo, useState } from "react";
 import ModalHabit from "../../components/modal/modal";
 import { useHabits } from "../../store/habits";
+import { DIFFICULTY_POINTS } from "../../lib/xp";
 
 export default function DashboardScreen() {
   const { habits } = useHabits();
@@ -33,10 +33,19 @@ export default function DashboardScreen() {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editMode, setEditMode] = useState(null);
+
+  const totalXP = todayHabits.reduce((sum, habit) => {
+    return sum + DIFFICULTY_POINTS[habit.difficulty];
+  }, 0);
+
+  const totalCompletedXP = todayHabits
+    .filter((habit) => habit.completed)
+    .reduce((sum, habit) => sum + DIFFICULTY_POINTS[habit.difficulty], 0);
+
   return (
     <>
       <ScreenContainer>
-        <MainHeader />
+        <MainHeader totalCompletedXp={totalCompletedXP} totalXp={totalXP} />
         <View style={styles.sectionHeaderContainer}>
           <View style={styles.sectionHeader}>
             <MaterialCommunityIcons
@@ -110,3 +119,14 @@ const styles = StyleSheet.create({
     gap: 14,
   },
 });
+
+// Tasks
+// make modal even smaller by distributing shit
+// make use of types because their are not in use
+// add animations
+// implement sql lite
+// Fix difficulty going back to medium always when updating it
+// also implement streak logic
+
+// Next step:
+// build stats section
