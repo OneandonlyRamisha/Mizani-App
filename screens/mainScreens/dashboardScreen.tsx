@@ -32,7 +32,7 @@ export default function DashboardScreen() {
   }, [habits]);
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [editMode, setEditMode] = useState(null);
+  const [editMode, setEditMode] = useState<null | string>(null);
 
   const totalXP = todayHabits.reduce((sum, habit) => {
     return sum + DIFFICULTY_POINTS[habit.difficulty];
@@ -121,8 +121,6 @@ const styles = StyleSheet.create({
 });
 
 // Tasks
-// make modal even smaller by distributing shit
-// make use of types because their are not in use
 // add animations
 // implement sql lite
 // Fix difficulty going back to medium always when updating it

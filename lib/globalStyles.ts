@@ -33,12 +33,6 @@ export const GLOBAL_STYLES = {
   wisdomCardBgColor: ["#A855F726", "#6366F133"],
   disciplineCardBgColor: ["#F9731626", "#F59E0B33"],
 
-  // original
-  // faithCardBgColor: ["#EF4444", "#EC4899"],
-  // healthCardBgColor: ["#10B981", "#14B8A6"],
-  // wisdomCardBgColor: ["#A855F7", "#6366F1"],
-  // disciplineCardBgColor: ["#F97316", "#F59E0B"],
-
   // Font Sizes
   header: 18,
   subHeader: 14,

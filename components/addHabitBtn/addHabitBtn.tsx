@@ -1,4 +1,3 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { Pressable, Text, StyleSheet } from "react-native";
 import { GLOBAL_STYLES } from "../../lib/globalStyles";
 

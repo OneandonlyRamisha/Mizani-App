@@ -1,17 +1,11 @@
-import { Text, View, StyleSheet } from "react-native";
+import { View, StyleSheet, Text } from "react-native";
+import ProfilePicture from "../profilePicture/profilePicture";
 import { GLOBAL_STYLES } from "../../lib/globalStyles";
 import { LinearGradient } from "expo-linear-gradient";
-import ProgressContainer from "./progressContainer/progressContainer";
-import ProfilePicture from "../profilePicture/profilePicture";
+import ProgressContainer from "../mainHeader/progressContainer/progressContainer";
 import { useProfile } from "../../store/profile";
 
-export default function MainHeader({
-  totalXp,
-  totalCompletedXp,
-}: {
-  totalXp: number;
-  totalCompletedXp: number;
-}) {
+export default function StatsHeader() {
   const { profile } = useProfile();
   return (
     <LinearGradient
@@ -36,22 +30,9 @@ export default function MainHeader({
           }}
         />
       </View>
-      <ProgressContainer
-        data={{
-          headerTitle: "Daily Quest Progress",
-          headerSubTitle: `${totalCompletedXp} / ${totalXp} XP`,
-          headerStats: null,
-        }}
-        progressBarData={{
-          height: 12,
-          width: (totalCompletedXp / totalXp) * 100,
-          colors: GLOBAL_STYLES.blueProgressBar,
-        }}
-      />
     </LinearGradient>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     paddingVertical: 35,

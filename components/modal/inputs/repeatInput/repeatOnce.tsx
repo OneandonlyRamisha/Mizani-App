@@ -2,6 +2,7 @@ import React from "react";
 import { Text, View, Pressable, StyleSheet } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { GLOBAL_STYLES } from "../../../../lib/globalStyles";
+import { Habit } from "../../../../types/habit";
 export default function RepeatOnce({
   showCalendar,
   setShowCalendar,
@@ -12,7 +13,7 @@ export default function RepeatOnce({
 }: {
   showCalendar: boolean;
   setShowCalendar: React.Dispatch<React.SetStateAction<boolean>>;
-  form: {};
+  form: Habit;
   selectedDate: string | null;
   setSelectedDate: React.Dispatch<React.SetStateAction<string | null>>;
   handleChangeText: (field: string, value: any) => void;

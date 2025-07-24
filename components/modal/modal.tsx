@@ -9,8 +9,6 @@ import {
 } from "react-native";
 import { BlurView } from "expo-blur";
 import { GLOBAL_STYLES } from "../../lib/globalStyles";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useState } from "react";
 import { useHabits } from "../../store/habits";
 import NameInput from "./inputs/nameInput";
@@ -20,6 +18,8 @@ import RepeatOnce from "./inputs/repeatInput/repeatOnce";
 import RepeatCustom from "./inputs/repeatInput/reapeatCustom";
 import PickerInput from "./inputs/pickerInput/pickerInput";
 import ModalBtn from "./modalBtn/modalBtn";
+import ModalHeader from "./modalHeader/modalHeader";
+import { Habit } from "../../types/habit";
 export default function ModalHabit({
   setModalVisible,
   visible,
@@ -31,7 +31,7 @@ export default function ModalHabit({
   editMode: string | null;
   setEditMode: React.Dispatch<React.SetStateAction<string | null>>;
 }) {
-  const initialForm = {
+  const initialForm: Habit = {
     id: Date.now().toString(),
     name: "",
     createDate: Date.now().toString(),
@@ -52,12 +52,12 @@ export default function ModalHabit({
     if (editing) {
       const currectHabit = habits.find((item) => item.id === editMode);
       if (currectHabit) {
-        setForm(currectHabit); // ← this is key
+        setForm(currectHabit);
       }
     }
   }, [editing, habits, editMode]);
 
-  function handleBtnClikc() {
+  function handleAdd() {
     if (!form.name) {
       Alert.alert(
         "Fill The Form",
@@ -137,23 +137,7 @@ export default function ModalHabit({
         style={styles.overlay}
       ></BlurView>
       <ScrollView style={styles.container}>
-        <View style={styles.headerContainer}>
-          <View style={styles.header}>
-            <Ionicons
-              name="sparkles-sharp"
-              size={24}
-              color={GLOBAL_STYLES.accentColor}
-            />
-            <Text style={styles.title}>Create New Habit</Text>
-          </View>
-          <Pressable onPress={handleClick}>
-            <AntDesign
-              name="close"
-              size={24}
-              color={GLOBAL_STYLES.secondaryColor}
-            />
-          </Pressable>
-        </View>
+        <ModalHeader handleClick={handleClick} />
         <View style={styles.bodyContainer}>
           <NameInput handleChangeText={handleChangeText} form={form} />
           <CategoryInput form={form} handleChangeText={handleChangeText} />
@@ -181,7 +165,7 @@ export default function ModalHabit({
         <View style={styles.btnsContainer}>
           <ModalBtn
             title={!editing ? "Save" : "Update"}
-            onPress={!editing ? handleBtnClikc : handleUpdate}
+            onPress={!editing ? handleAdd : handleUpdate}
           />
           {editing && (
             <ModalBtn
@@ -214,21 +198,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  header: {
-    flexDirection: "row",
-    gap: 15,
-    alignItems: "center",
-  },
-  title: {
-    fontSize: GLOBAL_STYLES.header,
-    fontWeight: 700,
-    color: GLOBAL_STYLES.accentColor,
-  },
   bodyContainer: {
     marginTop: 24,
     gap: 24,

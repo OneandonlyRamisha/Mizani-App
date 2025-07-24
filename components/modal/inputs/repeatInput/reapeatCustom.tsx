@@ -1,11 +1,12 @@
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { GLOBAL_STYLES } from "../../../../lib/globalStyles";
+import { Habit } from "../../../../types/habit";
 
 export default function RepeatCustom({
   form,
   handleChangeText,
 }: {
-  form: {};
+  form: Habit;
   handleChangeText: (field: string, value: any) => void;
 }) {
   const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
