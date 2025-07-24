@@ -21,7 +21,7 @@ export default function ProgressContainer({
         </Text>
         <Text style={styles.componentDataText}>{data.headerSubTitle}</Text>
       </View>
-      <View style={[styles.goldenBarBg, { height: progressBarData.height }]}>
+      <View style={[styles.progressBarBg, { height: progressBarData.height }]}>
         <LinearGradient
           style={{
             width: `${progressBarData.width}%`,
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     fontSize: GLOBAL_STYLES.element,
     color: GLOBAL_STYLES.secondaryColor,
   },
-  goldenBarBg: {
+  progressBarBg: {
     width: "100%",
     backgroundColor: GLOBAL_STYLES.progressBarBg,
     borderRadius: 1000,
