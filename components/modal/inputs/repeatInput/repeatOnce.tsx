@@ -36,7 +36,7 @@ export default function RepeatOnce({
           onChange={(event, date) => {
             setShowCalendar(false);
             if (date) {
-              const dateString = date.toISOString().split("T")[0];
+              const dateString = date.toLocaleDateString("en-CA").split("T")[0];
               setSelectedDate(dateString);
               handleChangeText("repeat", {
                 type: "Once",

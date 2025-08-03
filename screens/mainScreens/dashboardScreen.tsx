@@ -15,7 +15,7 @@ export default function DashboardScreen() {
 
   const today = new Date();
   const dayName = today.toLocaleDateString("en-US", { weekday: "short" });
-  const todayStr = today.toISOString().split("T")[0];
+  const todayStr = today.toLocaleDateString("en-CA").split("T")[0];
 
   const todayHabits = useMemo(() => {
     return habits.filter((habit) => {
@@ -31,39 +31,25 @@ export default function DashboardScreen() {
     });
   }, [habits]);
 
+  const completedTodaysTasks = todayHabits.filter((item) =>
+    item.completed.includes(todayStr)
+  ).length;
+
   const [modalVisible, setModalVisible] = useState(false);
   const [editMode, setEditMode] = useState<null | string>(null);
-
-  const totalXP = todayHabits.reduce((sum, habit) => {
-    return sum + DIFFICULTY_POINTS[habit.difficulty];
-  }, 0);
-
-  const totalCompletedXP = todayHabits
-    .filter((habit) => habit.completed)
-    .reduce((sum, habit) => sum + DIFFICULTY_POINTS[habit.difficulty], 0);
 
   return (
     <>
       <ScreenContainer>
-        <MainHeader totalCompletedXp={totalCompletedXP} totalXp={totalXP} />
-        <View style={styles.sectionHeaderContainer}>
-          <View style={styles.sectionHeader}>
-            <MaterialCommunityIcons
-              name="lightning-bolt"
-              size={24}
-              color={GLOBAL_STYLES.accentColor}
-            />
-            <Text style={styles.title}>Daily Quest Board</Text>
-            <MaterialCommunityIcons
-              name="lightning-bolt"
-              size={24}
-              color={GLOBAL_STYLES.accentColor}
-            />
-          </View>
-          <Text style={styles.subTitle}>
-            Level up your life, one quest at a time!
-          </Text>
-        </View>
+        <MainHeader
+          title="Today's Progress"
+          totalCompletedXp={completedTodaysTasks}
+          totalXp={todayHabits.length}
+        />
+        <AddHabitBtn setModalVisible={setModalVisible} />
+
+        <Text style={styles.title}>TODAY'S BATTLES</Text>
+
         <View style={styles.bodyContainer}>
           {todayHabits.map((data) => (
             <HabitsComponent
@@ -72,7 +58,7 @@ export default function DashboardScreen() {
               setEditMode={setEditMode}
               key={data.id}
               name={data.name}
-              completed={data.completed}
+              completed={data.completed?.includes(todayStr) ?? false}
               category={data.category}
               id={data.id}
               difficulty={data.difficulty}
@@ -87,26 +73,17 @@ export default function DashboardScreen() {
         setEditMode={setEditMode}
         editMode={editMode}
       />
-      <AddHabitBtn setModalVisible={setModalVisible} />
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionHeaderContainer: {
-    alignItems: "center",
-    marginTop: 40,
-    gap: 10,
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
   title: {
-    fontSize: GLOBAL_STYLES.header,
+    marginTop: 30,
+    fontSize: 20,
     color: GLOBAL_STYLES.accentColor,
-    fontWeight: 700,
+    fontFamily: "Cinzel-Regular",
+    letterSpacing: 2.5,
   },
   subTitle: {
     textAlign: "center",
@@ -119,12 +96,3 @@ const styles = StyleSheet.create({
     gap: 14,
   },
 });
-
-// Tasks
-// add animations
-// implement sql lite
-// Fix difficulty going back to medium always when updating it
-// also implement streak logic
-
-// Next step:
-// build stats section

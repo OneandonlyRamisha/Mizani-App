@@ -4,22 +4,26 @@ import StatsHeader from "../../components/statsHeader/statsHeader";
 
 import StatsGridComponents from "../../components/statsGridComponent/statsGridComponent";
 import RadarStatsChart from "../../components/radarStatsChart/radarStatsChart";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { GLOBAL_STYLES } from "../../lib/globalStyles";
 import { Ionicons, MaterialCommunityIcons, Fontisto } from "@expo/vector-icons";
 import { useProfile } from "../../store/profile";
 import StatsButton from "../../components/statsButton/statsButton";
 import { getStatsData } from "../../lib/statsData";
+import MainHeader from "../../components/mainHeader/mainHeader";
 
 export default function StatsScreen() {
   const [statType, setStatType] = useState("Grid");
   const { profile } = useProfile();
 
   const statsData = getStatsData(profile.stats);
-  console.log(profile);
   return (
     <ScreenContainer>
-      <StatsHeader />
+      <MainHeader
+        title="Overall stat"
+        totalXp={100}
+        totalCompletedXp={profile.stats.overall}
+      />
 
       <StatsButton setStatType={setStatType} statType={statType} />
 

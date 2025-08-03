@@ -7,6 +7,7 @@ import { QUESTIONERY } from "../../lib/questionery";
 import { useState } from "react";
 import { Profile } from "../../types/profile";
 import { useProfile } from "../../store/profile";
+import { MILESTONES_DATA } from "../../lib/milestonesData";
 
 export default function QuestionaryScreen({
   question,
@@ -38,6 +39,7 @@ export default function QuestionaryScreen({
       health: 0,
       faith: 0,
     },
+    milestones: MILESTONES_DATA,
   });
 
   const handlePress = () => {
@@ -60,7 +62,7 @@ export default function QuestionaryScreen({
         ...form,
         stats: {
           ...form.stats,
-          overall: Math.round(overall),
+          overall: overall,
         },
       });
       setActiveScreen("loadingScreen");

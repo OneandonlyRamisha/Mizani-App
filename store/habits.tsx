@@ -5,7 +5,10 @@ type HabitAction =
   | { type: "ADD_HABIT"; payload: Habit }
   | { type: "UPDATE_HABIT"; payload: Habit }
   | { type: "DELETE_HABIT"; payload: string }
-  | { type: "TOGGLE_HABIT"; payload: string };
+  | {
+      type: "TOGGLE_HABIT";
+      payload: { id: string; date: string; streak: number };
+    };
 
 function habitReducer(state: Habit[], action: HabitAction): Habit[] {
   switch (action.type) {
@@ -19,8 +22,14 @@ function habitReducer(state: Habit[], action: HabitAction): Habit[] {
       return state.filter((habit) => habit.id !== action.payload);
     case "TOGGLE_HABIT":
       return state.map((habit) =>
-        habit.id === action.payload
-          ? { ...habit, completed: !habit.completed }
+        habit.id === action.payload.id
+          ? {
+              ...habit,
+              completed: habit.completed?.includes(action.payload.date)
+                ? habit.completed.filter((d) => d !== action.payload.date)
+                : [...(habit.completed || []), action.payload.date],
+              streak: action.payload.streak,
+            }
           : habit
       );
     default:

@@ -25,7 +25,9 @@ export default function StatsGridComponents({
       <Text style={[styles.statTitle, { color: stats.color }]}>
         {stats.name}
       </Text>
-      <Text style={[styles.num, { color: stats.color }]}>{stats.stat}</Text>
+      <Text style={[styles.num, { color: stats.color }]}>
+        {stats.stat.toFixed(2)}
+      </Text>
       <View
         style={{
           backgroundColor: GLOBAL_STYLES.progressBarBg,

@@ -5,6 +5,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import CategoryComponent from "./categoryComponent/categoryComponent";
 import DifficultyComponent from "./difficultyComponent/difficultyComponent";
 import { useHabits } from "../../store/habits";
+import { useProfile } from "../../store/profile";
+import calculateStatGain from "../../lib/statGainedCalculator";
+
+type CategoryKey = "discipline" | "focus" | "wisdom" | "health" | "faith";
 
 export default function HabitsComponent({
   id,
@@ -27,11 +31,186 @@ export default function HabitsComponent({
   setEditMode: React.Dispatch<React.SetStateAction<string | null>>;
   setModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const { dispatch } = useHabits();
+  const { habits, dispatch } = useHabits();
+  const { profile, setProfile } = useProfile();
+
+  // function handleComplete(id: string) {
+  //   const habit = habits.find((item) => item.id === id);
+  //   if (!habit) return;
+
+  //   const categoryKey = habit.category.toLowerCase() as CategoryKey;
+  //   const gain = calculateStatGain(
+  //     profile.stats[categoryKey],
+  //     habit.difficulty
+  //   );
+
+  //   const today = new Date();
+  //   const todayStr = today.toLocaleDateString("en-CA").split("T")[0];
+
+  //   const yesterday = new Date(today);
+  //   yesterday.setDate(today.getDate() - 1);
+  //   const yesterdayStr = yesterday.toLocaleDateString("en-CA").split("T")[0];
+
+  //   const isTodayCompleted = habit.completed.includes(todayStr);
+  //   const isYesterdayCompleted = habit.completed.includes(yesterdayStr);
+
+  //   let newStreak = habit.streak;
+
+  //   const addedOverall =
+  //     (profile.stats.discipline +
+  //       profile.stats.faith +
+  //       profile.stats.focus +
+  //       profile.stats.health +
+  //       profile.stats.wisdom) /
+  //     5;
+
+  //   if (!isTodayCompleted) {
+  //     // ADD XP
+  //     setProfile((prev) => ({
+  //       ...prev,
+  //       stats: {
+  //         ...prev.stats,
+  //         [categoryKey]: prev.stats[categoryKey] + gain,
+  //         overall: addedOverall,
+  //       },
+  //     }));
+
+  //     // Update streak
+  //     newStreak = isYesterdayCompleted ? habit.streak + 1 : 1;
+  //   } else {
+  //     // REMOVE XP
+  //     setProfile((prev) => ({
+  //       ...prev,
+  //       stats: {
+  //         ...prev.stats,
+  //         [categoryKey]: Math.max(0, prev.stats[categoryKey] - gain),
+  //         overall: addedOverall,
+  //       },
+  //     }));
+
+  //     // Reset streak
+  //     newStreak = 0;
+  //   }
+
+  //   dispatch({
+  //     type: "TOGGLE_HABIT",
+  //     payload: { id, date: todayStr, streak: newStreak },
+  //   });
+
+  //   console.log(habit.streak);
+  // }
 
   function handleComplete(id: string) {
-    dispatch({ type: "TOGGLE_HABIT", payload: id });
+    const habit = habits.find((item) => item.id === id);
+    if (!habit) return;
+
+    const categoryKey = habit.category.toLowerCase() as CategoryKey;
+    const gain = calculateStatGain(
+      profile.stats[categoryKey],
+      habit.difficulty
+    );
+
+    const today = new Date();
+    const todayStr = today.toLocaleDateString("en-CA").split("T")[0];
+
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    const yesterdayStr = yesterday.toLocaleDateString("en-CA").split("T")[0];
+
+    const isTodayCompleted = habit.completed.includes(todayStr);
+    // const isYesterdayCompleted = habit.completed.includes(yesterdayStr);
+    const completedDates = habit.completed
+      .filter((date) => date < todayStr)
+      .sort();
+    const lastCompletedDateStr = completedDates.length
+      ? completedDates[completedDates.length - 1]
+      : null;
+
+    let newStreak = 1;
+    if (lastCompletedDateStr) {
+      const lastDate = new Date(lastCompletedDateStr);
+      const todayDate = new Date(todayStr);
+      const diffDays =
+        (todayDate.getTime() - lastDate.getTime()) / (1000 * 3600 * 24);
+      newStreak = diffDays === 1 ? habit.streak + 1 : 1;
+    }
+
+    // let newStreak = habit.streak;
+
+    if (!isTodayCompleted) {
+      // ADD XP
+
+      // ======= START updated stats snippet =======
+      setProfile((prev) => {
+        const newCategoryValue = prev.stats[categoryKey] + gain;
+
+        const updatedStats = {
+          ...prev.stats,
+          [categoryKey]: newCategoryValue,
+        };
+
+        const updatedOverall =
+          (updatedStats.discipline +
+            updatedStats.faith +
+            updatedStats.focus +
+            updatedStats.health +
+            updatedStats.wisdom) /
+          5;
+
+        return {
+          ...prev,
+          stats: {
+            ...updatedStats,
+            overall: updatedOverall,
+          },
+        };
+      });
+      // ======= END updated stats snippet =======
+
+      // Update streak
+      // newStreak = isYesterdayCompleted ? habit.streak + 1 : 1;
+    } else {
+      // REMOVE XP
+
+      // ======= START updated stats snippet =======
+      setProfile((prev) => {
+        const newCategoryValue = Math.max(0, prev.stats[categoryKey] - gain);
+
+        const updatedStats = {
+          ...prev.stats,
+          [categoryKey]: newCategoryValue,
+        };
+
+        const updatedOverall =
+          (updatedStats.discipline +
+            updatedStats.faith +
+            updatedStats.focus +
+            updatedStats.health +
+            updatedStats.wisdom) /
+          5;
+
+        return {
+          ...prev,
+          stats: {
+            ...updatedStats,
+            overall: updatedOverall,
+          },
+        };
+      });
+      // ======= END updated stats snippet =======
+
+      // Reset streak
+      newStreak = 0;
+    }
+
+    dispatch({
+      type: "TOGGLE_HABIT",
+      payload: { id, date: todayStr, streak: newStreak },
+    });
+
+    console.log(habit.streak);
   }
+
   function handleEditMode(id: string) {
     setEditMode(id);
     setModalVisible(true);
@@ -58,10 +237,6 @@ export default function HabitsComponent({
             <DifficultyComponent difficulty={difficulty} />
           </View>
           <View style={styles.xpContainer}>
-            <Text style={styles.steakText}>
-              + {difficulty === "Easy" ? 10 : difficulty === "Medium" ? 25 : 50}{" "}
-              XP
-            </Text>
             <View style={styles.streakContainer}>
               <MaterialIcons
                 name="local-fire-department"
@@ -160,3 +335,7 @@ const styles = StyleSheet.create({
     textDecorationLine: "line-through",
   },
 });
+
+// last tasks
+// add sql
+// add milestones to profile context so that we keep track of milestones

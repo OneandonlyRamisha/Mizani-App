@@ -2,7 +2,6 @@ import CalendarScreen from "../screens/mainScreens/calendarScreen";
 import DashboardScreen from "../screens/mainScreens/dashboardScreen";
 import MilestoneScreen from "../screens/mainScreens/milestoneScreen";
 import StatsScreen from "../screens/mainScreens/statsScreen";
-import TemplatesScreen from "../screens/mainScreens/templatesScreen";
 import { TouchableOpacity, View } from "react-native";
 import { GLOBAL_STYLES } from "./globalStyles";
 import { AntDesign } from "@expo/vector-icons";
@@ -41,15 +40,6 @@ export const NAV_DATA = [
     options: {
       tabBarIcon: ({ color }: { color: string }) => (
         <AntDesign name="calendar" size={24} color={color} />
-      ),
-    },
-  },
-  {
-    name: "Templates",
-    component: TemplatesScreen,
-    options: {
-      tabBarIcon: ({ color }: { color: string }) => (
-        <AntDesign name="folderopen" size={24} color={color} />
       ),
     },
   },

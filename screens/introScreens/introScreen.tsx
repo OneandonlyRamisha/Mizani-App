@@ -36,7 +36,8 @@ export default function IntroScreen({}: {}) {
 
   return (
     <SafeAreaView style={styles.screenContainer}>
-      {screens.map((item) => item.name === activeScreen && item.component)}
+      {/* {screens.map((item) => item.name === activeScreen && item.component)} */}
+      {screens.find((item) => item.name === activeScreen)?.component}
     </SafeAreaView>
   );
 }
