@@ -1,3 +1,5 @@
+import { Milestone } from "./milestones";
+
 export type Profile = {
   name: string;
   level: number;
@@ -13,4 +15,5 @@ export type Profile = {
     health: number;
     faith: number;
   };
+  milestones: Milestone[];
 };

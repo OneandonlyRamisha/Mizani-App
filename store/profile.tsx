@@ -7,10 +7,12 @@ import React, {
 } from "react";
 import { Habit } from "../types/habit";
 import { Profile } from "../types/profile";
+import { MILESTONES_DATA } from "../lib/milestonesData";
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 const initialProfile = {
   name: "",
+  milestones: MILESTONES_DATA,
   level: 1,
   currentXP: 0,
   totalXP: 0,

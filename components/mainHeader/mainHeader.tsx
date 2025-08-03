@@ -8,9 +8,11 @@ import { useProfile } from "../../store/profile";
 export default function MainHeader({
   totalXp,
   totalCompletedXp,
+  title,
 }: {
   totalXp: number;
   totalCompletedXp: number;
+  title: string;
 }) {
   const { profile } = useProfile();
   return (
@@ -21,25 +23,18 @@ export default function MainHeader({
       end={{ x: 1, y: 0 }}
     >
       <View style={styles.headerPartContainer}>
-        <ProfilePicture />
-        <ProgressContainer
-          styleName={styles.lvlHeader}
-          progressBarData={{
-            height: 8,
-            width: profile.currentXP,
-            colors: [GLOBAL_STYLES.accentColor, GLOBAL_STYLES.accentColor75],
-          }}
-          data={{
-            headerTitle: `Level ${profile.level}`,
-            headerSubTitle: "(Habit Apprentice)",
-            headerStats: [`${profile.currentXP} XP`, "-459 XP to advance"],
-          }}
-        />
+        <View>
+          <Text style={styles.header}>{title}</Text>
+          <Text style={styles.subHeader}>Keep pushing forward, warrior</Text>
+        </View>
+        <Text style={styles.progressNum}>
+          {totalXp > 0 ? Math.floor((totalCompletedXp / totalXp) * 100) : 0}%
+        </Text>
       </View>
       <ProgressContainer
         data={{
-          headerTitle: "Daily Quest Progress",
-          headerSubTitle: `${totalCompletedXp} / ${totalXp} XP`,
+          headerTitle: `${Math.floor(totalCompletedXp)}/${totalXp} completed`,
+          headerSubTitle: ``,
           headerStats: null,
         }}
         progressBarData={{
@@ -65,13 +60,23 @@ const styles = StyleSheet.create({
   headerPartContainer: {
     gap: 10,
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
   },
 
-  lvlHeader: {
-    fontSize: GLOBAL_STYLES.header,
-    fontWeight: 800,
+  header: {
+    fontFamily: "Cinzel-Semi-Bold",
+    fontSize: 18,
     color: GLOBAL_STYLES.accentColor,
-    letterSpacing: 1.2,
+  },
+  subHeader: {
+    fontSize: 12,
+    color: GLOBAL_STYLES.secondaryColor,
+  },
+  progressNum: {
+    fontSize: 30,
+    fontFamily: "Cinzel-Semi-Bold",
+    fontWeight: 600,
+    color: GLOBAL_STYLES.accentColor,
   },
 });

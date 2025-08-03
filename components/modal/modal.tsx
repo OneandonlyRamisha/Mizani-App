@@ -20,6 +20,7 @@ import PickerInput from "./inputs/pickerInput/pickerInput";
 import ModalBtn from "./modalBtn/modalBtn";
 import ModalHeader from "./modalHeader/modalHeader";
 import { Habit } from "../../types/habit";
+import { estimateDifficulty } from "../../lib/difficultyEstimate";
 export default function ModalHabit({
   setModalVisible,
   visible,
@@ -34,8 +35,8 @@ export default function ModalHabit({
   const initialForm: Habit = {
     id: Date.now().toString(),
     name: "",
-    createDate: Date.now().toString(),
-    completed: false,
+    createDate: new Date().toLocaleDateString("en-CA").split("T")[0],
+    completed: [],
     streak: 0,
     difficulty: "Medium",
     repeat: { type: "Daily", days: [] },
@@ -72,7 +73,8 @@ export default function ModalHabit({
       );
       return;
     }
-    dispatch({ type: "ADD_HABIT", payload: form });
+    const difficulty = estimateDifficulty(form);
+    dispatch({ type: "ADD_HABIT", payload: { ...form, difficulty } });
     handleClick();
   }
 
@@ -156,11 +158,11 @@ export default function ModalHabit({
           {form.repeat.type === "Custom" && (
             <RepeatCustom form={form} handleChangeText={handleChangeText} />
           )}
-          <PickerInput
+          {/* <PickerInput
             sliderValue={sliderValue}
             setSliderValue={setSliderValue}
             handleChangeText={handleChangeText}
-          />
+          /> */}
         </View>
         <View style={styles.btnsContainer}>
           <ModalBtn
