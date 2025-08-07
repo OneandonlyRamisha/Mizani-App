@@ -11,8 +11,8 @@ import PayWallSecondaryCta from "../../components/introScreenComponents/paywallC
 import { PAYWALL_BENEFITS_DATA } from "../../lib/payWallBenfitsData";
 
 export default function PayWall() {
-  const { setProfile } = useProfile();
-  function handlePress() {
+  const { profile, setProfile } = useProfile();
+  async function handlePress() {
     setProfile((prev) => ({ ...prev, paid: true }));
   }
 
@@ -26,6 +26,7 @@ export default function PayWall() {
             <Text style={styles.benefitHeader}>WHAT YOU GET</Text>
             {PAYWALL_BENEFITS_DATA.map((benefit) => (
               <PayWallBenefits
+                key={benefit.subHeader}
                 header={benefit.header}
                 icon={benefit.icon}
                 subHeader={benefit.subHeader}

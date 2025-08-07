@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     backgroundColor: GLOBAL_STYLES.secondaryBg,
     paddingHorizontal: 30,
     paddingVertical: 45,
-    borderRadius: 12,
+    borderRadius: 7,
 
     gap: 9,
   },

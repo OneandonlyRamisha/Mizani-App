@@ -7,11 +7,12 @@ import { useProfile } from "../../store/profile";
 export default function RadarStatsChart() {
   const { profile } = useProfile();
   const data = [
+    { label: "Discipline", value: profile.stats.discipline },
     { label: "Faith", value: profile.stats.faith },
+    { label: "Focus", value: profile.stats.focus },
+    { label: "Fitness", value: profile.stats.fitness },
     { label: "Wisdoms", value: profile.stats.wisdom },
-    { label: "health", value: profile.stats.health },
-    { label: "discipline", value: profile.stats.discipline },
-    { label: "focus", value: profile.stats.focus },
+    { label: "Finance", value: profile.stats.finance },
   ];
 
   const phoneWidth = Dimensions.get("window").width;
@@ -45,8 +46,8 @@ const styles = StyleSheet.create({
     backgroundColor: GLOBAL_STYLES.card,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 16,
-    borderColor: "#333",
+
+    borderColor: GLOBAL_STYLES.progressBarBg,
     borderWidth: 1,
   },
 });

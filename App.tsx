@@ -5,6 +5,7 @@ import { HabitProvider } from "./store/habits";
 import IntroScreen from "./screens/introScreens/introScreen";
 import { ProfileProvider, useProfile } from "./store/profile";
 import { useFonts } from "expo-font";
+import { SQLiteDatabase, SQLiteProvider } from "expo-sqlite";
 
 function AppContent() {
   const { profile } = useProfile();
@@ -20,23 +21,62 @@ export default function App() {
 
   if (!fontsLoaded) return null;
 
+  const createDbIfNeeded = async (db: SQLiteDatabase) => {
+    console.log("creteing database");
+    // Profile table
+    await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS profiles (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT,
+      level INTEGER,
+      currentXP INTEGER,
+      totalXP INTEGER,
+      age TEXT,
+      paid INTEGER,
+      stats TEXT,           -- JSON stringified object
+      milestones TEXT       -- JSON stringified array
+    );
+  `);
+
+    // Habit table
+    await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS habits (
+      id TEXT PRIMARY KEY,
+      name TEXT,
+      createDate TEXT,
+      completed TEXT,       -- JSON stringified array
+      streak INTEGER,
+      difficulty TEXT,
+      repeat TEXT,          -- JSON stringified object
+      category TEXT
+    );
+  `);
+  };
   return (
     <View style={{ flex: 1 }}>
       <StatusBar style="light" />
-      <ProfileProvider>
-        <HabitProvider>
-          <AppContent />
-        </HabitProvider>
-      </ProfileProvider>
+      <SQLiteProvider databaseName={"appDatabase.db"} onInit={createDbIfNeeded}>
+        <ProfileProvider>
+          <HabitProvider>
+            <AppContent />
+          </HabitProvider>
+        </ProfileProvider>
+      </SQLiteProvider>
     </View>
   );
 }
 
-// Tasks
-// 1. Update Streak logic that when you remove todays completed and redo it still has to keep the streak
-// 2. Update streak for custom dates
-// 3. Update Modal to make it look better
-// 4. Add SQLite
-// 5. Add Local Notifications
-// 6. Add Payments
-// bonus: when milestone is acheived make it apprear as a pop up
+// tasks
+// 1. Update Milestones For Disicipline
+// 2. Update Discipline logic so that it gets poisnts based on streak for if user completes all the tasks he gets streaks and based on that streaks discipline updates and if they break streak then they loose discipline
+// 4. Add Important Details to intro Screens take it form pillar arise and others
+// 5. Make so that from calendar people cant mark habits as completed
+// 6. add Finances to loading page
+// 7. Update so you use same button for everything and same progressbar make it resuable
+// 8. After loading page fix stats page
+// 9. Add Payment shit
+// 11. Add SQLite
+// 12. Fix Radar Chart Being Fucked up
+// 13. Improve design of btn make it better
+// 14. Move Functions into libs and call it to functions from there
+// 16. Add Animations

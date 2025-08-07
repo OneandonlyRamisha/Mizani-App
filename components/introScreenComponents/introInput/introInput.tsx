@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     backgroundColor: GLOBAL_STYLES.secondaryBg,
     width: "100%",
     height: 55,
-    borderRadius: 8,
+    borderRadius: 7,
     paddingHorizontal: 30,
     color: GLOBAL_STYLES.primaryColor,
   },
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderWidth: 1,
 
-    borderRadius: 8,
+    borderRadius: 7,
   },
   optionsText: {
     color: GLOBAL_STYLES.primaryColor,

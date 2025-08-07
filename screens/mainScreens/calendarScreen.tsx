@@ -55,7 +55,6 @@ export default function CalendarScreen() {
       <View
         style={{
           backgroundColor: GLOBAL_STYLES.secondaryBg,
-          borderRadius: 12,
           padding: 10,
         }}
       >

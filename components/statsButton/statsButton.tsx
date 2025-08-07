@@ -10,7 +10,7 @@ export default function StatsButton({
 }) {
   return (
     <View style={styles.btnContainer}>
-      <Pressable>
+      <Pressable style={{ width: "50%", borderRadius: 7 }}>
         <Text
           style={[styles.btn, statType === "Grid" ? styles.active : undefined]}
           onPress={() => setStatType("Grid")}
@@ -19,7 +19,7 @@ export default function StatsButton({
         </Text>
       </Pressable>
 
-      <Pressable>
+      <Pressable style={{ width: "50%", borderRadius: 7 }}>
         <Text
           style={[styles.btn, statType === "Graph" ? styles.active : undefined]}
           onPress={() => setStatType("Graph")}
@@ -34,24 +34,20 @@ export default function StatsButton({
 const styles = StyleSheet.create({
   btnContainer: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
     marginVertical: 20,
-    borderRadius: 1000,
-    alignSelf: "center",
+    borderRadius: 7,
     backgroundColor: GLOBAL_STYLES.secondaryBg,
+    padding: 5,
   },
   btn: {
-    fontSize: GLOBAL_STYLES.subHeader,
+    fontSize: 16,
     color: "#fff",
-    paddingVertical: 12,
-    borderRadius: 1000,
-    paddingHorizontal: 40,
+    paddingVertical: 13,
+    borderRadius: 7,
+    width: "100%",
+    textAlign: "center",
   },
   active: {
-    backgroundColor: GLOBAL_STYLES.accentColor75,
+    backgroundColor: GLOBAL_STYLES.accentColor50,
   },
 });
-function useState(arg0: string): [any, any] {
-  throw new Error("Function not implemented.");
-}

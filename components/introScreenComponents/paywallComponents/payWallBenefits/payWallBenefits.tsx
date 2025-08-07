@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   benefit: {
     backgroundColor: GLOBAL_STYLES.secondaryBg,
     padding: 20,
-    borderRadius: 12,
+    borderRadius: 7,
     borderColor: GLOBAL_STYLES.progressBarBg,
     borderWidth: 1,
     flexDirection: "row",

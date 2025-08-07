@@ -19,14 +19,16 @@ export default function ModalBtn({
 const styles = StyleSheet.create({
   btnContainer: {
     width: "100%",
-    backgroundColor: GLOBAL_STYLES.accentColor,
+    // backgroundColor: GLOBAL_STYLES.secondaryColor,
+    borderWidth: 1,
+    borderColor: GLOBAL_STYLES.accentColor75,
     alignItems: "center",
-
-    borderRadius: 12,
+    backgroundColor: GLOBAL_STYLES.card,
   },
   btn: {
     paddingVertical: 14,
-    fontSize: 16,
-    fontWeight: 700,
+    fontSize: 18,
+    fontFamily: "Cinzel-Medium",
+    color: GLOBAL_STYLES.primaryColor,
   },
 });

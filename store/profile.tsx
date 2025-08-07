@@ -23,8 +23,9 @@ const initialProfile = {
     discipline: 0,
     focus: 0,
     wisdom: 0,
-    health: 0,
+    fitness: 0,
     faith: 0,
+    finance: 0,
   },
 };
 

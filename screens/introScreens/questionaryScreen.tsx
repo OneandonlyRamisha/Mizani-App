@@ -36,13 +36,14 @@ export default function QuestionaryScreen({
       discipline: 0,
       focus: 0,
       wisdom: 0,
-      health: 0,
+      fitness: 0,
       faith: 0,
+      finance: 0,
     },
     milestones: MILESTONES_DATA,
   });
 
-  const handlePress = () => {
+  const handlePress = async () => {
     setActive(null);
 
     if (form.name.length < 2 || (question > 0 && !active)) {
@@ -56,7 +57,7 @@ export default function QuestionaryScreen({
     if (question < QUESTIONERY.length - 1) {
       setQuestion(question + 1);
     } else {
-      const overall = Object.values(form.stats).reduce((a, b) => a + b, 0) / 5;
+      const overall = Object.values(form.stats).reduce((a, b) => a + b, 0) / 6;
 
       setProfile({
         ...form,
@@ -65,10 +66,10 @@ export default function QuestionaryScreen({
           overall: overall,
         },
       });
+
       setActiveScreen("loadingScreen");
     }
   };
-
   return (
     <View style={styles.contentContainer}>
       <View style={{ gap: 20 }}>

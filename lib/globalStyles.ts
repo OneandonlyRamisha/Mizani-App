@@ -23,13 +23,14 @@ export const GLOBAL_STYLES = {
 
   //Elements
   progressBarBg: "#1F2937",
+  mainGradient: ["#FACD37", "#B8732E"],
   blueProgressBar: ["#3B82F6", "#06B6D4"],
 
   //Cards
   card: "#11182780",
   faithCardBgColor: ["#EF444426", "#EC489933"],
   focusCardBgColor: ["#3B82F626", "#06B6D433"],
-  healthCardBgColor: ["#10B98126", "#14B8A633"],
+  fitnessCardBgColor: ["#10B98126", "#14B8A633"],
   wisdomCardBgColor: ["#A855F726", "#6366F133"],
   disciplineCardBgColor: ["#F9731626", "#F59E0B33"],
 

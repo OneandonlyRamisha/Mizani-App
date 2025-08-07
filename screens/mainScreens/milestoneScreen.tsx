@@ -29,12 +29,14 @@ export default function MilestoneScreen() {
       });
     });
 
+    const updatedMilestones = profile.milestones.map((m) => ({
+      ...m,
+      completed: uniqueDaysPerPillar[m.pillar]?.size >= m.daysRequired,
+    }));
+
     setProfile((prev) => ({
       ...prev,
-      milestones: prev.milestones.map((m) => ({
-        ...m,
-        completed: uniqueDaysPerPillar[m.pillar]?.size >= m.daysRequired,
-      })),
+      milestones: updatedMilestones,
     }));
   }, [habits]);
 
@@ -49,8 +51,9 @@ export default function MilestoneScreen() {
         <MilestonesComponent category="Faith" />
         <MilestonesComponent category="Discipline" />
         <MilestonesComponent category="Focus" />
-        <MilestonesComponent category="Health" />
+        <MilestonesComponent category="Fitness" />
         <MilestonesComponent category="Wisdom" />
+        <MilestonesComponent category="Finance" />
       </View>
     </ScreenContainer>
   );

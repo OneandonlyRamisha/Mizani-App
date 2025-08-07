@@ -133,37 +133,34 @@ export default function ModalHabit({
   }
   return (
     <Modal visible={visible} transparent animationType="slide">
-      <BlurView
-        intensity={100}
-        tint="systemThinMaterialDark"
-        style={styles.overlay}
-      ></BlurView>
-      <ScrollView style={styles.container}>
-        <ModalHeader handleClick={handleClick} />
-        <View style={styles.bodyContainer}>
-          <NameInput handleChangeText={handleChangeText} form={form} />
-          <CategoryInput form={form} handleChangeText={handleChangeText} />
-          <RepeatInput handleChangeText={handleChangeText} form={form} />
-          {form.repeat.type === "Once" && (
-            <RepeatOnce
-              showCalendar={showCalendar}
-              setShowCalendar={setShowCalendar}
-              selectedDate={selectedDate}
-              setSelectedDate={setSelectedDate}
-              handleChangeText={handleChangeText}
-              form={form}
-            />
-          )}
+      <View style={styles.container}>
+        <ScrollView style={{ zIndex: 2 }} showsVerticalScrollIndicator={false}>
+          <ModalHeader handleClick={handleClick} />
+          <View style={styles.bodyContainer}>
+            <NameInput handleChangeText={handleChangeText} form={form} />
+            <CategoryInput form={form} handleChangeText={handleChangeText} />
+            <RepeatInput handleChangeText={handleChangeText} form={form} />
+            {form.repeat.type === "Once" && (
+              <RepeatOnce
+                showCalendar={showCalendar}
+                setShowCalendar={setShowCalendar}
+                selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
+                handleChangeText={handleChangeText}
+                form={form}
+              />
+            )}
 
-          {form.repeat.type === "Custom" && (
-            <RepeatCustom form={form} handleChangeText={handleChangeText} />
-          )}
-          {/* <PickerInput
+            {form.repeat.type === "Custom" && (
+              <RepeatCustom form={form} handleChangeText={handleChangeText} />
+            )}
+            {/* <PickerInput
             sliderValue={sliderValue}
             setSliderValue={setSliderValue}
             handleChangeText={handleChangeText}
           /> */}
-        </View>
+          </View>
+        </ScrollView>
         <View style={styles.btnsContainer}>
           <ModalBtn
             title={!editing ? "Save" : "Update"}
@@ -177,7 +174,7 @@ export default function ModalHabit({
             />
           )}
         </View>
-      </ScrollView>
+      </View>
     </Modal>
   );
 }
@@ -185,29 +182,34 @@ export default function ModalHabit({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    position: "absolute",
+    // position: "absolute",
     right: 0,
     width: "100%",
     bottom: 0,
-    height: "92%",
-    backgroundColor: GLOBAL_STYLES.secondaryBg,
-    borderTopEndRadius: 30,
-    borderTopLeftRadius: 30,
-    padding: 28,
+    // height: "100%",
+    backgroundColor: GLOBAL_STYLES.bg,
+
+    paddingVertical: 24,
+    paddingHorizontal: 14,
+
     elevation: 3,
   },
+
   overlay: {
     flex: 1,
   },
 
   bodyContainer: {
-    marginTop: 24,
-    gap: 24,
+    marginTop: 32,
+    gap: 32,
+    marginBottom: 40,
   },
 
   btnsContainer: {
-    marginTop: 34,
-    marginBottom: 120,
+    bottom: 0,
+    // marginTop: 34,
+    // marginBottom: 120,
     gap: 10,
+    zIndex: 11,
   },
 });

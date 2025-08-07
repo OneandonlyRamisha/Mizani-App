@@ -1,4 +1,4 @@
-import { Pressable, Text, View, StyleSheet } from "react-native";
+import { Pressable, Text, View, StyleSheet, ColorValue } from "react-native";
 import { Milestone } from "../../types/milestones";
 import { LinearGradient } from "expo-linear-gradient";
 import { GLOBAL_STYLES } from "../../lib/globalStyles";
@@ -36,9 +36,8 @@ export default function MilestonesComponent({
                 (completedMilestones.length / milestones.length) * 100
               }%`,
               height: 7,
-              borderRadius: 1000,
             }}
-            colors={[GLOBAL_STYLES.accentColor, GLOBAL_STYLES.accentColor50]}
+            colors={GLOBAL_STYLES.mainGradient as [ColorValue, ColorValue]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
           ></LinearGradient>
@@ -60,10 +59,10 @@ export default function MilestonesComponent({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: GLOBAL_STYLES.secondaryBg,
+    backgroundColor: GLOBAL_STYLES.card,
     borderWidth: 1,
     borderColor: GLOBAL_STYLES.accentColor20,
-    borderRadius: 9,
+
     paddingVertical: 24,
     paddingHorizontal: 20,
     gap: 5,
@@ -81,7 +80,6 @@ const styles = StyleSheet.create({
   progressBarContainer: { gap: 7, marginTop: 12 },
   progressBarBg: {
     height: 7,
-    borderRadius: 10000,
     backgroundColor: GLOBAL_STYLES.accentColor10,
     width: "100%",
   },

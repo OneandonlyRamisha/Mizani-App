@@ -12,8 +12,9 @@ export type Profile = {
     discipline: number;
     focus: number;
     wisdom: number;
-    health: number;
+    fitness: number;
     faith: number;
+    finance: number;
   };
   milestones: Milestone[];
 };

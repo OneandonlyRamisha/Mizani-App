@@ -26,7 +26,6 @@ export default function ProgressContainer({
           style={{
             width: `${progressBarData.width}%`,
             height: progressBarData.height,
-            borderRadius: 1000,
           }}
           colors={progressBarData.colors as [ColorValue, ColorValue]}
           start={{ x: 0, y: 0 }}
@@ -60,6 +59,5 @@ const styles = StyleSheet.create({
   progressBarBg: {
     width: "100%",
     backgroundColor: GLOBAL_STYLES.progressBarBg,
-    borderRadius: 1000,
   },
 });

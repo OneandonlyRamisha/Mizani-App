@@ -7,8 +7,10 @@ import DifficultyComponent from "./difficultyComponent/difficultyComponent";
 import { useHabits } from "../../store/habits";
 import { useProfile } from "../../store/profile";
 import calculateStatGain from "../../lib/statGainedCalculator";
+import calculateStreak from "../../lib/calcStreak";
+import { Profile } from "../../types/profile";
 
-type CategoryKey = "discipline" | "focus" | "wisdom" | "health" | "faith";
+type CategoryKey = "discipline" | "focus" | "wisdom" | "fitness" | "faith";
 
 export default function HabitsComponent({
   id,
@@ -26,79 +28,13 @@ export default function HabitsComponent({
   completed: boolean;
   streak: number;
   difficulty: "Easy" | "Medium" | "Hard";
-  category: "Faith" | "Discipline" | "Focus" | "Health" | "Wisdom";
+  category: "Faith" | "Discipline" | "Focus" | "Fitness" | "Wisdom";
   editMode: string | null;
   setEditMode: React.Dispatch<React.SetStateAction<string | null>>;
   setModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const { habits, dispatch } = useHabits();
   const { profile, setProfile } = useProfile();
-
-  // function handleComplete(id: string) {
-  //   const habit = habits.find((item) => item.id === id);
-  //   if (!habit) return;
-
-  //   const categoryKey = habit.category.toLowerCase() as CategoryKey;
-  //   const gain = calculateStatGain(
-  //     profile.stats[categoryKey],
-  //     habit.difficulty
-  //   );
-
-  //   const today = new Date();
-  //   const todayStr = today.toLocaleDateString("en-CA").split("T")[0];
-
-  //   const yesterday = new Date(today);
-  //   yesterday.setDate(today.getDate() - 1);
-  //   const yesterdayStr = yesterday.toLocaleDateString("en-CA").split("T")[0];
-
-  //   const isTodayCompleted = habit.completed.includes(todayStr);
-  //   const isYesterdayCompleted = habit.completed.includes(yesterdayStr);
-
-  //   let newStreak = habit.streak;
-
-  //   const addedOverall =
-  //     (profile.stats.discipline +
-  //       profile.stats.faith +
-  //       profile.stats.focus +
-  //       profile.stats.health +
-  //       profile.stats.wisdom) /
-  //     5;
-
-  //   if (!isTodayCompleted) {
-  //     // ADD XP
-  //     setProfile((prev) => ({
-  //       ...prev,
-  //       stats: {
-  //         ...prev.stats,
-  //         [categoryKey]: prev.stats[categoryKey] + gain,
-  //         overall: addedOverall,
-  //       },
-  //     }));
-
-  //     // Update streak
-  //     newStreak = isYesterdayCompleted ? habit.streak + 1 : 1;
-  //   } else {
-  //     // REMOVE XP
-  //     setProfile((prev) => ({
-  //       ...prev,
-  //       stats: {
-  //         ...prev.stats,
-  //         [categoryKey]: Math.max(0, prev.stats[categoryKey] - gain),
-  //         overall: addedOverall,
-  //       },
-  //     }));
-
-  //     // Reset streak
-  //     newStreak = 0;
-  //   }
-
-  //   dispatch({
-  //     type: "TOGGLE_HABIT",
-  //     payload: { id, date: todayStr, streak: newStreak },
-  //   });
-
-  //   console.log(habit.streak);
-  // }
 
   function handleComplete(id: string) {
     const habit = habits.find((item) => item.id === id);
@@ -109,134 +45,274 @@ export default function HabitsComponent({
       profile.stats[categoryKey],
       habit.difficulty
     );
+    const todayStr = new Date().toLocaleDateString("en-CA").split("T")[0];
+    const isCompleted = habit.completed.includes(todayStr);
 
-    const today = new Date();
-    const todayStr = today.toLocaleDateString("en-CA").split("T")[0];
+    let updatedCompleted = [...habit.completed];
 
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-    const yesterdayStr = yesterday.toLocaleDateString("en-CA").split("T")[0];
-
-    const isTodayCompleted = habit.completed.includes(todayStr);
-    // const isYesterdayCompleted = habit.completed.includes(yesterdayStr);
-    const completedDates = habit.completed
-      .filter((date) => date < todayStr)
-      .sort();
-    const lastCompletedDateStr = completedDates.length
-      ? completedDates[completedDates.length - 1]
-      : null;
-
-    let newStreak = 1;
-    if (lastCompletedDateStr) {
-      const lastDate = new Date(lastCompletedDateStr);
-      const todayDate = new Date(todayStr);
-      const diffDays =
-        (todayDate.getTime() - lastDate.getTime()) / (1000 * 3600 * 24);
-      newStreak = diffDays === 1 ? habit.streak + 1 : 1;
-    }
-
-    // let newStreak = habit.streak;
-
-    if (!isTodayCompleted) {
-      // ADD XP
-
-      // ======= START updated stats snippet =======
-      setProfile((prev) => {
-        const newCategoryValue = prev.stats[categoryKey] + gain;
-
-        const updatedStats = {
-          ...prev.stats,
-          [categoryKey]: newCategoryValue,
-        };
-
-        const updatedOverall =
-          (updatedStats.discipline +
-            updatedStats.faith +
-            updatedStats.focus +
-            updatedStats.health +
-            updatedStats.wisdom) /
-          5;
-
-        return {
-          ...prev,
-          stats: {
-            ...updatedStats,
-            overall: updatedOverall,
-          },
-        };
-      });
-      // ======= END updated stats snippet =======
-
-      // Update streak
-      // newStreak = isYesterdayCompleted ? habit.streak + 1 : 1;
+    if (isCompleted) {
+      // uncheck - remove date
+      updatedCompleted = updatedCompleted.filter((d) => d !== todayStr);
     } else {
-      // REMOVE XP
-
-      // ======= START updated stats snippet =======
-      setProfile((prev) => {
-        const newCategoryValue = Math.max(0, prev.stats[categoryKey] - gain);
-
-        const updatedStats = {
-          ...prev.stats,
-          [categoryKey]: newCategoryValue,
-        };
-
-        const updatedOverall =
-          (updatedStats.discipline +
-            updatedStats.faith +
-            updatedStats.focus +
-            updatedStats.health +
-            updatedStats.wisdom) /
-          5;
-
-        return {
-          ...prev,
-          stats: {
-            ...updatedStats,
-            overall: updatedOverall,
-          },
-        };
-      });
-      // ======= END updated stats snippet =======
-
-      // Reset streak
-      newStreak = 0;
+      // check - add date
+      updatedCompleted.push(todayStr);
     }
+
+    // Recalculate streak based on new list
+    const newStreak = calculateStreak(updatedCompleted, habit.repeat);
+
+    // Update XP
+    setProfile((prev) => {
+      const newStatValue = Math.max(
+        0,
+        prev.stats[categoryKey] + (isCompleted ? -gain : gain)
+      );
+
+      const updatedStats = {
+        ...prev.stats,
+        [categoryKey]: newStatValue,
+      };
+
+      const updatedOverall =
+        (updatedStats.discipline +
+          updatedStats.faith +
+          updatedStats.focus +
+          updatedStats.fitness +
+          updatedStats.wisdom) /
+        5;
+
+      return {
+        ...prev,
+        stats: {
+          ...updatedStats,
+          overall: updatedOverall,
+        },
+      };
+    });
 
     dispatch({
       type: "TOGGLE_HABIT",
       payload: { id, date: todayStr, streak: newStreak },
     });
-
-    console.log(habit.streak);
   }
+  // const db = useSQLiteContext();
+  // async function updateProfileInDB(updatedProfile: Profile) {
+  //   await db.runAsync(`UPDATE profiles SET stats = ? WHERE name = ?`, [
+  //     JSON.stringify(updatedProfile.stats),
+  //     profile.name,
+  //   ]);
+  // }
+
+  // function handleComplete(id: string) {
+  //   const habit = habits.find((item) => item.id === id);
+  //   if (!habit) return;
+
+  //   const categoryKey = habit.category.toLowerCase() as CategoryKey;
+  //   const gain = calculateStatGain(
+  //     profile.stats[categoryKey],
+  //     habit.difficulty
+  //   );
+  //   const todayStr = new Date().toISOString().split("T")[0];
+  //   const isCompleted = habit.completed.includes(todayStr);
+
+  //   let updatedCompleted = [...habit.completed];
+
+  //   if (isCompleted) {
+  //     updatedCompleted = updatedCompleted.filter((d) => d !== todayStr);
+  //   } else {
+  //     updatedCompleted.push(todayStr);
+  //   }
+
+  //   const newStreak = calculateStreak(updatedCompleted, habit.repeat);
+
+  //   setProfile((prev) => {
+  //     const newStatValue = Math.max(
+  //       0,
+  //       prev.stats[categoryKey] + (isCompleted ? -gain : gain)
+  //     );
+
+  //     const updatedStats = {
+  //       ...prev.stats,
+  //       [categoryKey]: newStatValue,
+  //     };
+
+  //     const updatedOverall =
+  //       (updatedStats.discipline +
+  //         updatedStats.faith +
+  //         updatedStats.focus +
+  //         updatedStats.fitness +
+  //         updatedStats.wisdom) /
+  //       5;
+
+  //     const updatedProfile = {
+  //       ...prev,
+  //       stats: {
+  //         ...updatedStats,
+  //         overall: updatedOverall,
+  //       },
+  //     };
+
+  //     updateProfileInDB(updatedProfile); // async call, no await here
+
+  //     return updatedProfile;
+  //   });
+
+  //   dispatch({
+  //     type: "TOGGLE_HABIT",
+  //     payload: { id, date: todayStr, streak: newStreak },
+  //   });
+  // }
 
   function handleEditMode(id: string) {
     setEditMode(id);
     setModalVisible(true);
     console.log(id);
+    console.log(completed);
   }
   return (
+    // <Pressable
+    //   key={id}
+    //   style={[styles.container, completed ? styles.completed : undefined]}
+    //   onPress={() => handleEditMode(id)}
+    // >
+    //   <View style={styles.contentContainer}>
+    //     <View style={styles.content}>
+    //       <Text
+    //         style={[
+    //           styles.title,
+    //           completed ? styles.completedTitle : undefined,
+    //         ]}
+    //       >
+    //         {name}
+    //       </Text>
+    //       <View style={styles.desContainer}>
+    //         {/* <CategoryComponent category={category} /> */}
+    //         {/* <DifficultyComponent difficulty={difficulty} /> */}
+    //         <Text style={styles.desText}>{category}</Text>
+    //         <Text style={styles.desText}>&#183;</Text>
+    //         <Text style={styles.desText}>{difficulty}</Text>
+    //       </View>
+    //       <View style={styles.xpContainer}>
+    //         <View style={styles.streakContainer}>
+    //           <MaterialIcons
+    //             name="local-fire-department"
+    //             size={14}
+    //             color="red"
+    //           />
+    //           <Text style={styles.steakText}>{streak} days streak</Text>
+    //         </View>
+    //       </View>
+    //     </View>
+    //   </View>
+    //   <View>
+    //     {completed ? (
+    //       <Pressable
+    //         style={{
+    //           flex: 1,
+    //           alignItems: "center",
+    //           justifyContent: "center",
+    //         }}
+    //         onPress={() => handleComplete(id)}
+    //       >
+    //         <MaterialIcons
+    //           name="check-circle-outline"
+    //           size={34}
+    //           color={GLOBAL_STYLES.accentColor}
+    //           style={{ zIndex: 100 }}
+    //         />
+    //       </Pressable>
+    //     ) : (
+    //       <Pressable
+    //         style={{
+    //           flex: 1,
+    //           alignItems: "center",
+    //           justifyContent: "center",
+    //         }}
+    //         onPress={() => handleComplete(id)}
+    //       >
+    //         <MaterialIcons
+    //           name="radio-button-unchecked"
+    //           size={34}
+    //           color={GLOBAL_STYLES.secondaryColor}
+    //           style={{ zIndex: 100 }}
+    //         />
+    //       </Pressable>
+    //     )}
+    //   </View>
+    // </Pressable>
     <Pressable
       key={id}
       style={[styles.container, completed ? styles.completed : undefined]}
       onPress={() => handleEditMode(id)}
     >
       <View style={styles.contentContainer}>
-        <View style={styles.content}>
-          <Text
-            style={[
-              styles.title,
-              completed ? styles.completedTitle : undefined,
-            ]}
-          >
-            {name}
-          </Text>
-          <View style={styles.desContainer}>
-            <CategoryComponent category={category} />
-            <DifficultyComponent difficulty={difficulty} />
+        <View style={{ flexDirection: "row", gap: 9 }}>
+          <View>
+            {completed ? (
+              <Pressable
+                style={{
+                  flex: 1,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onPress={() => handleComplete(id)}
+              >
+                <MaterialIcons
+                  name="check-circle-outline"
+                  size={34}
+                  color={GLOBAL_STYLES.accentColor}
+                  style={{ zIndex: 100 }}
+                />
+              </Pressable>
+            ) : (
+              <Pressable
+                style={{
+                  flex: 1,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onPress={() => handleComplete(id)}
+              >
+                <MaterialIcons
+                  name="radio-button-unchecked"
+                  size={34}
+                  color={GLOBAL_STYLES.secondaryColor}
+                  style={{ zIndex: 100 }}
+                />
+              </Pressable>
+            )}
           </View>
-          <View style={styles.xpContainer}>
+          <View style={styles.content}>
+            <Text
+              style={[
+                styles.title,
+                completed ? styles.completedTitle : undefined,
+              ]}
+            >
+              {name}
+            </Text>
+            <View style={styles.desContainer}>
+              {/* <CategoryComponent category={category} /> */}
+              {/* <DifficultyComponent difficulty={difficulty} /> */}
+              <Text style={styles.desText}>{category}</Text>
+              <Text style={styles.desText}>&#183;</Text>
+              <Text
+                style={[
+                  styles.desText,
+                  {
+                    color:
+                      difficulty === "Easy"
+                        ? GLOBAL_STYLES.green
+                        : difficulty === "Medium"
+                        ? GLOBAL_STYLES.orange
+                        : GLOBAL_STYLES.red,
+                  },
+                ]}
+              >
+                {difficulty}
+              </Text>
+            </View>
+            {/* <View style={styles.xpContainer}>
             <View style={styles.streakContainer}>
               <MaterialIcons
                 name="local-fire-department"
@@ -245,31 +321,20 @@ export default function HabitsComponent({
               />
               <Text style={styles.steakText}>{streak} days streak</Text>
             </View>
+          </View> */}
           </View>
         </View>
-      </View>
-      <View>
-        {completed ? (
-          <Pressable>
+
+        <View style={styles.xpContainer}>
+          <View style={styles.streakContainer}>
             <MaterialIcons
-              name="check-circle-outline"
-              size={30}
+              name="local-fire-department"
+              size={20}
               color={GLOBAL_STYLES.accentColor}
-              style={{ zIndex: 100 }}
-              onPress={() => handleComplete(id)}
             />
-          </Pressable>
-        ) : (
-          <Pressable>
-            <MaterialIcons
-              name="radio-button-unchecked"
-              size={30}
-              color={GLOBAL_STYLES.secondaryColor}
-              style={{ zIndex: 100 }}
-              onPress={() => handleComplete(id)}
-            />
-          </Pressable>
-        )}
+            <Text style={styles.steakText}>{streak}</Text>
+          </View>
+        </View>
       </View>
     </Pressable>
   );
@@ -281,8 +346,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: GLOBAL_STYLES.progressBarBg,
     elevation: 2,
-    borderRadius: 16,
-    padding: 24,
+    // borderRadius: 7,
+    paddingHorizontal: 12,
+    paddingVertical: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -294,18 +360,21 @@ const styles = StyleSheet.create({
   contentContainer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    // gap: 10,
+    width: "100%",
+    justifyContent: "space-between",
     // flexWrap: "wrap"
   },
   desContainer: {
     flexDirection: "row",
-    gap: 10,
+    gap: 7,
     alignItems: "center",
   },
   xpContainer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+
+    // gap: 10,
   },
   streakContainer: {
     flexDirection: "row",
@@ -315,20 +384,26 @@ const styles = StyleSheet.create({
 
   content: {
     flexDirection: "column",
-    width: "75%",
-
-    gap: 12,
+    width: "78%",
+    // maxWidth: "76%",
+    gap: 2,
+  },
+  desText: {
+    color: GLOBAL_STYLES.secondaryColor,
+    textTransform: "uppercase",
+    fontFamily: "Cinzel-Medium",
   },
   title: {
-    fontSize: GLOBAL_STYLES.header,
-    fontWeight: 600,
+    fontSize: 18,
+    // fontWeight: 600,
+    fontFamily: "Cinzel-Medium",
     color: GLOBAL_STYLES.primaryColor,
     flexWrap: "wrap",
   },
 
   steakText: {
-    fontSize: GLOBAL_STYLES.element,
-    color: GLOBAL_STYLES.secondaryColor,
+    fontSize: 18,
+    color: GLOBAL_STYLES.accentColor,
   },
   completedTitle: {
     color: GLOBAL_STYLES.secondaryColor,

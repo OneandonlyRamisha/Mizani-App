@@ -14,8 +14,8 @@ export default function CategoryComponent({ category }: { category: string }) {
   } else if (category === "Focus") {
     categoryBg = GLOBAL_STYLES.focusCardBgColor;
     categoryColor = GLOBAL_STYLES.blue;
-  } else if (category === "Health") {
-    categoryBg = GLOBAL_STYLES.healthCardBgColor;
+  } else if (category === "Fitness") {
+    categoryBg = GLOBAL_STYLES.fitnessCardBgColor;
     categoryColor = GLOBAL_STYLES.green;
   } else if (category === "Wisdom") {
     categoryBg = GLOBAL_STYLES.wisdomCardBgColor;

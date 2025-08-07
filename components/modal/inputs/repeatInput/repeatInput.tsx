@@ -22,7 +22,19 @@ export default function RepeatInput({
             ]}
             onPress={() => handleChangeText("repeat", { type: freq, days: [] })}
           >
-            <Text style={styles.frequencyTitle}>{freq}</Text>
+            <Text
+              style={[
+                styles.frequencyTitle,
+                {
+                  color:
+                    form.repeat.type === freq
+                      ? GLOBAL_STYLES.bg
+                      : GLOBAL_STYLES.primaryColor,
+                },
+              ]}
+            >
+              {freq}
+            </Text>
           </Pressable>
         ))}
       </View>
@@ -37,20 +49,27 @@ const styles = StyleSheet.create({
   },
   inputTitle: {
     fontSize: GLOBAL_STYLES.subHeader,
-    color: GLOBAL_STYLES.secondaryColor,
-    fontWeight: 500,
+    color: GLOBAL_STYLES.primaryColor,
+    // fontWeight: 500,
+    fontFamily: "Cinzel-Medium",
   },
   frequency: {
     textAlign: "center",
-    borderRadius: 8,
-    margin: 4,
+    borderRadius: 1008,
+    width: "32%",
+    marginVertical: 4,
     backgroundColor: GLOBAL_STYLES.progressBarBg,
-    paddingVertical: 14,
-    paddingHorizontal: "9%",
+    paddingVertical: 9,
+
+    // paddingHorizontal: "9%",
     borderColor: GLOBAL_STYLES.progressBarBg,
     borderWidth: 1,
   },
-  frequencyTitle: { textAlign: "center", color: GLOBAL_STYLES.primaryColor },
+  frequencyTitle: {
+    textAlign: "center",
+    color: GLOBAL_STYLES.primaryColor,
+    fontFamily: "Cinzel-Medium",
+  },
   frequencyContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -58,7 +77,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   active: {
-    backgroundColor: GLOBAL_STYLES.accentColor10,
+    backgroundColor: GLOBAL_STYLES.accentColor,
     borderColor: GLOBAL_STYLES.accentColor50,
     borderWidth: 1,
   },
