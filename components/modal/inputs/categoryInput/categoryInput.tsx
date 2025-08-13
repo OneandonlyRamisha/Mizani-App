@@ -9,14 +9,7 @@ export default function CategoryInput({
   handleChangeText: (field: string, value: any) => void;
   form: { category: string };
 }) {
-  const categories = [
-    "Faith",
-    "Fitness",
-    "Discipline",
-    "Focus",
-    "Wisdom",
-    "Finance",
-  ];
+  const categories = ["Faith", "Fitness", "Focus", "Wisdom", "Finance"];
 
   return (
     <View style={styles.inputContainer}>

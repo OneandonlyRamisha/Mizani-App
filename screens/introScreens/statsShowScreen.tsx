@@ -7,6 +7,7 @@ import { GLOBAL_STYLES } from "../../lib/globalStyles";
 import { getStatsData } from "../../lib/statsData";
 import StatsButton from "../../components/statsButton/statsButton";
 import NextBtn from "../../components/introScreenComponents/nextBtn/nextBtn";
+import StatsMizanani from "../../components/statsMizani/statsMizani";
 
 export default function StatsShowScreen({
   setActiveScreen,
@@ -32,6 +33,7 @@ export default function StatsShowScreen({
     >
       <View>
         <StatsButton setStatType={setStatType} statType={statType} />
+        <StatsMizanani />
         {statType === "Grid" ? (
           <View style={styles.statsContainer}>
             {statsData.map((stats) => (
@@ -42,7 +44,7 @@ export default function StatsShowScreen({
           <RadarStatsChart />
         )}
       </View>
-      <NextBtn onPress={handlePress} />
+      <NextBtn onPress={handlePress} selected={true} />
     </View>
   );
 }
@@ -51,7 +53,7 @@ const styles = StyleSheet.create({
   statsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
+    gap: 7,
     marginBottom: 20,
   },
 });

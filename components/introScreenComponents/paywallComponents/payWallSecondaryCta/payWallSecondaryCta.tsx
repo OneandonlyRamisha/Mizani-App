@@ -10,11 +10,14 @@ export default function PayWallSecondaryCta({
     <Pressable onPress={handlePress}>
       <Text
         style={{
-          backgroundColor: GLOBAL_STYLES.accentColor,
-          borderRadius: 7,
+          backgroundColor: GLOBAL_STYLES.card,
+          color: GLOBAL_STYLES.accentColor75,
+          fontFamily: "Cinzel-Medium",
+          borderWidth: 1,
+          borderColor: GLOBAL_STYLES.accentColor20,
+
           padding: 20,
           textAlign: "center",
-          fontWeight: 800,
           textTransform: "uppercase",
           fontSize: 16,
         }}

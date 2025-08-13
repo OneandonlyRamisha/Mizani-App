@@ -1,19 +1,22 @@
-import { Text, View, StyleSheet, Image } from "react-native";
+import { Text, View, StyleSheet, Image, Animated, Easing } from "react-native";
 import ScreenContainer from "../../components/screenContainer/screenContainer";
 import MainHeader from "../../components/mainHeader/mainHeader";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { GLOBAL_STYLES } from "../../lib/globalStyles";
 import HabitsComponent from "../../components/habitsComponent/habitsComponent";
 import AddHabitBtn from "../../components/addHabitBtn/addHabitBtn";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ModalHabit from "../../components/modal/modal";
 import { useHabits } from "../../store/habits";
 import { DIFFICULTY_POINTS } from "../../lib/xp";
 import Svg, { Polygon } from "react-native-svg";
 import { MaterialIcons } from "@expo/vector-icons";
 
+import { useProfile } from "../../store/profile";
+
 export default function DashboardScreen() {
   const { habits } = useHabits();
+  const { profile, setProfile } = useProfile();
 
   const today = new Date();
   const dayName = today.toLocaleDateString("en-US", { weekday: "short" });
@@ -42,15 +45,209 @@ export default function DashboardScreen() {
       return false;
     });
   }, [habits]);
-  const thisShit = todayHabits.map((item) => item.completed);
-  console.log(todayStr + "awdawdad" + " " + thisShit);
-
-  const completedTodaysTasks = todayHabits.filter((item) =>
+  const completedCount = todayHabits.filter((item) =>
     item.completed.includes(todayStr)
   ).length;
 
+  console.log(todayHabits.length + " " + completedCount);
+
   const [modalVisible, setModalVisible] = useState(false);
   const [editMode, setEditMode] = useState<null | string>(null);
+
+  const floatAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, {
+          toValue: -9, // move up 5px
+          duration: 2700,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnim, {
+          toValue: 0, // back down
+          duration: 2700,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
+  // useEffect(() => {
+  //   if (todayHabits.length === 0) return;
+
+  //   const yesterday = new Date(today);
+  //   yesterday.setDate(today.getDate() - 1);
+  //   const yesterdayStr = yesterday.toLocaleDateString("en-CA");
+
+  //   setProfile((prev) => {
+  //     const streak = prev.streak || [];
+  //     const lastStreakDate = streak.length ? streak[streak.length - 1] : null;
+
+  //     let updatedProfile = prev;
+
+  //     if (completedCount === todayHabits.length) {
+  //       if (lastStreakDate !== todayStr && lastStreakDate === yesterdayStr) {
+  //         updatedProfile = { ...prev, streak: [...streak, todayStr] };
+  //       } else if (lastStreakDate !== todayStr) {
+  //         updatedProfile = { ...prev, streak: [todayStr] };
+  //       }
+  //     } else {
+  //       if (lastStreakDate === todayStr) {
+  //         updatedProfile = { ...prev, streak: streak.slice(0, -1) };
+  //       } else if (
+  //         lastStreakDate &&
+  //         lastStreakDate !== yesterdayStr &&
+  //         lastStreakDate !== todayStr
+  //       ) {
+  //         updatedProfile = { ...prev, streak: [] };
+  //       }
+  //     }
+
+  //     const pointsToday = prev.pointsAwardedDates || [];
+  //     const hasAwardedToday = pointsToday.includes(todayStr);
+  //     const pointsToAdd = 0.1;
+
+  //     if (completedCount === todayHabits.length && !hasAwardedToday) {
+  //       updatedProfile = {
+  //         ...updatedProfile,
+  //         stats: {
+  //           ...updatedProfile.stats,
+  //           discipline: (updatedProfile.stats.discipline || 0) + pointsToAdd,
+  //         },
+  //         pointsAwardedDates: [...pointsToday, todayStr],
+  //       };
+  //     } else if (completedCount !== todayHabits.length && hasAwardedToday) {
+  //       updatedProfile = {
+  //         ...updatedProfile,
+  //         stats: {
+  //           ...updatedProfile.stats,
+  //           discipline: Math.max(
+  //             0,
+  //             (updatedProfile.stats.discipline || 0) - pointsToAdd
+  //           ),
+  //         },
+  //         pointsAwardedDates: pointsToday.filter((d) => d !== todayStr),
+  //       };
+  //     }
+
+  //     return updatedProfile;
+  //   });
+  // }, [completedCount, todayHabits.length, todayStr]);
+  useEffect(() => {
+    if (todayHabits.length === 0) return;
+
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    const yesterdayStr = yesterday.toLocaleDateString("en-CA");
+
+    setProfile((prev) => {
+      const streak = prev.streak || [];
+      const lastStreakDate = streak.length ? streak[streak.length - 1] : null;
+
+      let updatedProfile = prev;
+
+      // Update streak
+      if (completedCount === todayHabits.length) {
+        if (lastStreakDate !== todayStr && lastStreakDate === yesterdayStr) {
+          updatedProfile = { ...prev, streak: [...streak, todayStr] };
+        } else if (lastStreakDate !== todayStr) {
+          updatedProfile = { ...prev, streak: [todayStr] };
+        }
+      } else {
+        if (lastStreakDate === todayStr) {
+          updatedProfile = { ...prev, streak: streak.slice(0, -1) };
+        } else if (
+          lastStreakDate &&
+          lastStreakDate !== yesterdayStr &&
+          lastStreakDate !== todayStr
+        ) {
+          updatedProfile = { ...prev, streak: [] };
+        }
+      }
+
+      // Calculate days missed since last discipline update
+      const lastUpdateStr =
+        prev.lastDisciplineUpdate || prev.lastUpdateDate || "";
+      const lastUpdateDate = lastUpdateStr ? new Date(lastUpdateStr) : null;
+      const todayDate = new Date(today);
+
+      let daysMissed = 0;
+      if (lastUpdateDate) {
+        const diffTime = todayDate.getTime() - lastUpdateDate.getTime();
+        daysMissed = Math.floor(diffTime / (1000 * 60 * 60 * 24)) - 1; // exclude yesterday
+        if (daysMissed < 0) daysMissed = 0;
+      }
+
+      // Decay for missed days: 5% per missed day
+      const decayRate = 0.05;
+      let newDiscipline = updatedProfile.stats.discipline || 0;
+      if (daysMissed > 0) {
+        newDiscipline = newDiscipline * Math.pow(1 - decayRate, daysMissed);
+      }
+
+      // Add or remove points for today toggle
+      const pointsToday = prev.pointsAwardedDates || [];
+      const hasAwardedToday = pointsToday.includes(todayStr);
+      const pointsToAdd = 0.15;
+
+      if (completedCount === todayHabits.length && !hasAwardedToday) {
+        newDiscipline = Math.min(100, newDiscipline + pointsToAdd);
+        updatedProfile = {
+          ...updatedProfile,
+          stats: {
+            ...updatedProfile.stats,
+            discipline: newDiscipline,
+          },
+          pointsAwardedDates: [...pointsToday, todayStr],
+          lastDisciplineUpdate: todayStr,
+        };
+      } else if (completedCount !== todayHabits.length && hasAwardedToday) {
+        newDiscipline = Math.max(0, newDiscipline - pointsToAdd);
+        updatedProfile = {
+          ...updatedProfile,
+          stats: {
+            ...updatedProfile.stats,
+            discipline: newDiscipline,
+          },
+          pointsAwardedDates: pointsToday.filter((d) => d !== todayStr),
+          lastDisciplineUpdate: todayStr,
+        };
+      } else {
+        // Just update discipline decay without adding/removing points today
+        updatedProfile = {
+          ...updatedProfile,
+          stats: {
+            ...updatedProfile.stats,
+            discipline: newDiscipline,
+          },
+          lastDisciplineUpdate: todayStr,
+        };
+      }
+
+      // Calculate overall after discipline update
+      const newOverall =
+        (newDiscipline +
+          (updatedProfile.stats.faith || 0) +
+          (updatedProfile.stats.finance || 0) +
+          (updatedProfile.stats.fitness || 0) +
+          (updatedProfile.stats.focus || 0) +
+          (updatedProfile.stats.wisdom || 0)) /
+        6;
+
+      updatedProfile = {
+        ...updatedProfile,
+        stats: {
+          ...updatedProfile.stats,
+          overall: newOverall,
+        },
+      };
+
+      return updatedProfile;
+    });
+  }, [completedCount, todayHabits.length, todayStr]);
 
   return (
     <>
@@ -97,13 +294,25 @@ export default function DashboardScreen() {
           </Text>
         </View> */}
 
-        <View style={styles.imgContainer}>
+        {/* <View style={styles.imgContainer}>
           <Image
             source={require("../../assets/dashboardImg.png")} // local image
             style={styles.image}
             resizeMode="contain"
           />
-        </View>
+        </View> */}
+        <Animated.View
+          style={[
+            styles.imgContainer,
+            { transform: [{ translateY: floatAnim }] },
+          ]}
+        >
+          <Image
+            source={require("../../assets/dashboardImg.png")}
+            style={styles.image}
+            resizeMode="contain"
+          />
+        </Animated.View>
 
         <View style={styles.streakWrapper}>
           <Svg width={250} height={50}>
@@ -120,7 +329,9 @@ export default function DashboardScreen() {
               size={18}
               color={GLOBAL_STYLES.accentColor}
             />
-            <Text style={styles.streakText}>12-DAY STREAK</Text>
+            <Text style={styles.streakText}>
+              {profile.streak.length}-DAY STREAK
+            </Text>
           </View>
         </View>
 
@@ -218,7 +429,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   imgContainer: {
-    marginTop: 30,
+    marginTop: 10,
     alignSelf: "center",
   },
   image: {

@@ -102,6 +102,7 @@ export default function CalendarScreen() {
             id={data.id}
             difficulty={data.difficulty}
             streak={data.streak}
+            calendar={true}
           />
         ))}
       </View>

@@ -34,10 +34,11 @@ const styles = StyleSheet.create({
   },
   monthlyPlanContainer: {
     alignItems: "center",
-    backgroundColor: GLOBAL_STYLES.secondaryBg,
+    backgroundColor: GLOBAL_STYLES.card,
+    borderWidth: 1,
+    borderColor: GLOBAL_STYLES.progressBarBg,
     paddingHorizontal: 30,
     paddingVertical: 45,
-    borderRadius: 7,
 
     gap: 9,
   },

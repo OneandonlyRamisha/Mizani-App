@@ -90,25 +90,27 @@ const styles = StyleSheet.create({
     gap: 15,
   },
   input: {
-    backgroundColor: GLOBAL_STYLES.secondaryBg,
+    backgroundColor: GLOBAL_STYLES.card,
+    borderWidth: 1,
+    borderColor: GLOBAL_STYLES.progressBarBg,
     width: "100%",
-    height: 55,
-    borderRadius: 7,
+    minHeight: 55,
+
     paddingHorizontal: 30,
     color: GLOBAL_STYLES.primaryColor,
   },
   optionBtn: {
-    backgroundColor: GLOBAL_STYLES.secondaryBg,
+    backgroundColor: GLOBAL_STYLES.card,
     width: "100%",
     paddingVertical: 14,
     borderWidth: 1,
-
-    borderRadius: 7,
+    borderColor: GLOBAL_STYLES.progressBarBg,
   },
   optionsText: {
     color: GLOBAL_STYLES.primaryColor,
     fontSize: 15,
-    fontWeight: 500,
+    fontWeight: 400,
+    // fontFamily: "Cinzel-Medium",
     paddingHorizontal: 20,
   },
   activeOptionBtn: {

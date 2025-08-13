@@ -22,16 +22,18 @@ export default function HabitsComponent({
   setEditMode,
   editMode,
   setModalVisible,
+  calendar,
 }: {
   id: string;
   name: string;
   completed: boolean;
   streak: number;
   difficulty: "Easy" | "Medium" | "Hard";
-  category: "Faith" | "Discipline" | "Focus" | "Fitness" | "Wisdom";
+  category: "Faith" | "Focus" | "Fitness" | "Wisdom";
   editMode: string | null;
   setEditMode: React.Dispatch<React.SetStateAction<string | null>>;
   setModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  calendar?: boolean;
 }) {
   const { habits, dispatch } = useHabits();
   const { profile, setProfile } = useProfile();
@@ -41,6 +43,7 @@ export default function HabitsComponent({
     if (!habit) return;
 
     const categoryKey = habit.category.toLowerCase() as CategoryKey;
+
     const gain = calculateStatGain(
       profile.stats[categoryKey],
       habit.difficulty
@@ -78,8 +81,9 @@ export default function HabitsComponent({
           updatedStats.faith +
           updatedStats.focus +
           updatedStats.fitness +
-          updatedStats.wisdom) /
-        5;
+          updatedStats.wisdom +
+          updatedStats.finance) /
+        6;
 
       return {
         ...prev,
@@ -255,7 +259,7 @@ export default function HabitsComponent({
                   alignItems: "center",
                   justifyContent: "center",
                 }}
-                onPress={() => handleComplete(id)}
+                onPress={() => (calendar ? null : handleComplete(id))}
               >
                 <MaterialIcons
                   name="check-circle-outline"
@@ -271,7 +275,7 @@ export default function HabitsComponent({
                   alignItems: "center",
                   justifyContent: "center",
                 }}
-                onPress={() => handleComplete(id)}
+                onPress={() => (calendar ? null : handleComplete(id))}
               >
                 <MaterialIcons
                   name="radio-button-unchecked"
@@ -384,7 +388,7 @@ const styles = StyleSheet.create({
 
   content: {
     flexDirection: "column",
-    width: "78%",
+    width: "75%",
     // maxWidth: "76%",
     gap: 2,
   },
@@ -410,7 +414,3 @@ const styles = StyleSheet.create({
     textDecorationLine: "line-through",
   },
 });
-
-// last tasks
-// add sql
-// add milestones to profile context so that we keep track of milestones

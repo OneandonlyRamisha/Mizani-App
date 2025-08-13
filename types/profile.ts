@@ -7,6 +7,7 @@ export type Profile = {
   totalXP: number;
   age: string;
   paid: boolean;
+  streak: string[];
   stats: {
     overall: number;
     discipline: number;
@@ -17,4 +18,7 @@ export type Profile = {
     finance: number;
   };
   milestones: Milestone[];
+  lastDisciplineUpdate?: string;
+  lastUpdateDate?: string;
+  pointsAwardedDates?: string[];
 };

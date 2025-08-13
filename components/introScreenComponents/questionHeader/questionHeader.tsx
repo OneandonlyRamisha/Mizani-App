@@ -15,18 +15,19 @@ export default function QuestionHeader({ question }: { question: string }) {
 const styles = StyleSheet.create({
   headerContainer: {
     alignItems: "center",
-    gap: 20,
-    marginTop: 20,
+    gap: 5,
   },
   header: {
     fontSize: 24,
+    fontFamily: "Cinzel-Semi-Bold",
     color: GLOBAL_STYLES.primaryColor,
-    fontWeight: 600,
+
     textAlign: "center",
   },
   subHeader: {
     color: GLOBAL_STYLES.secondaryColor,
-    fontSize: 16,
+    fontSize: 14,
+    fontFamily: "Cinzel-Medium",
     textAlign: "center",
   },
 });

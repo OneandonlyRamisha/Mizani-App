@@ -4,7 +4,7 @@ import NextBtn from "../../components/introScreenComponents/nextBtn/nextBtn";
 import ProgressBarIntroPage from "../../components/introScreenComponents/progressBar/progressBar";
 import QuestionHeader from "../../components/introScreenComponents/questionHeader/questionHeader";
 import { QUESTIONERY } from "../../lib/questionery";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Profile } from "../../types/profile";
 import { useProfile } from "../../store/profile";
 import { MILESTONES_DATA } from "../../lib/milestonesData";
@@ -31,6 +31,7 @@ export default function QuestionaryScreen({
     totalXP: 0,
     paid: false,
     age: "",
+    streak: [],
     stats: {
       overall: 0,
       discipline: 0,
@@ -43,16 +44,18 @@ export default function QuestionaryScreen({
     milestones: MILESTONES_DATA,
   });
 
+  const [selected, setSelected] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (form.name.length >= 1 && (question === 0 || active)) {
+      setSelected(true);
+    } else {
+      setSelected(false);
+    }
+  }, [form.name, active, question]);
+
   const handlePress = async () => {
     setActive(null);
-
-    if (form.name.length < 2 || (question > 0 && !active)) {
-      Alert.alert(
-        "All Field Must Be Filled",
-        "You need to feel out all the field so we can give you exact stats"
-      );
-      return;
-    }
 
     if (question < QUESTIONERY.length - 1) {
       setQuestion(question + 1);
@@ -87,7 +90,7 @@ export default function QuestionaryScreen({
         />
       </View>
 
-      <NextBtn onPress={handlePress} />
+      <NextBtn onPress={handlePress} selected={selected} />
     </View>
   );
 }

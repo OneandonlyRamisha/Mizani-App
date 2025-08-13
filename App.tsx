@@ -22,7 +22,8 @@ export default function App() {
   if (!fontsLoaded) return null;
 
   const createDbIfNeeded = async (db: SQLiteDatabase) => {
-    console.log("creteing database");
+    console.log("creating database");
+
     // Profile table
     await db.execAsync(`
     CREATE TABLE IF NOT EXISTS profiles (
@@ -33,8 +34,12 @@ export default function App() {
       totalXP INTEGER,
       age TEXT,
       paid INTEGER,
+      streak TEXT,          -- JSON stringified array of strings
       stats TEXT,           -- JSON stringified object
-      milestones TEXT       -- JSON stringified array
+      milestones TEXT,      -- JSON stringified array
+      lastDisciplineUpdate TEXT,
+      lastUpdateDate TEXT,
+      pointsAwardedDates TEXT  -- JSON stringified array of strings
     );
   `);
 
@@ -44,7 +49,7 @@ export default function App() {
       id TEXT PRIMARY KEY,
       name TEXT,
       createDate TEXT,
-      completed TEXT,       -- JSON stringified array
+      completed TEXT,       -- JSON stringified array of strings
       streak INTEGER,
       difficulty TEXT,
       repeat TEXT,          -- JSON stringified object
@@ -52,6 +57,7 @@ export default function App() {
     );
   `);
   };
+
   return (
     <View style={{ flex: 1 }}>
       <StatusBar style="light" />
@@ -67,16 +73,9 @@ export default function App() {
 }
 
 // tasks
-// 1. Update Milestones For Disicipline
-// 2. Update Discipline logic so that it gets poisnts based on streak for if user completes all the tasks he gets streaks and based on that streaks discipline updates and if they break streak then they loose discipline
-// 4. Add Important Details to intro Screens take it form pillar arise and others
-// 5. Make so that from calendar people cant mark habits as completed
-// 6. add Finances to loading page
-// 7. Update so you use same button for everything and same progressbar make it resuable
-// 8. After loading page fix stats page
-// 9. Add Payment shit
 // 11. Add SQLite
+// 1. Update Milestones For Disicipline
+// 2. add notifiactions
+// 9. Add Payment shit
 // 12. Fix Radar Chart Being Fucked up
-// 13. Improve design of btn make it better
 // 14. Move Functions into libs and call it to functions from there
-// 16. Add Animations

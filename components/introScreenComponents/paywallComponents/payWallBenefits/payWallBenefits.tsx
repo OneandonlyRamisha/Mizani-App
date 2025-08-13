@@ -24,14 +24,15 @@ export default function PayWallBenefits({
 
 const styles = StyleSheet.create({
   benefit: {
-    backgroundColor: GLOBAL_STYLES.secondaryBg,
+    backgroundColor: GLOBAL_STYLES.card,
     padding: 20,
-    borderRadius: 7,
+
+    // borderRadius: 7,
     borderColor: GLOBAL_STYLES.progressBarBg,
     borderWidth: 1,
     flexDirection: "row",
     gap: 14,
-    alignItems: "flex-start",
+    alignItems: "center",
   },
   benefitsheader: {
     color: GLOBAL_STYLES.primaryColor,

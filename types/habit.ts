@@ -6,5 +6,5 @@ export type Habit = {
   streak: number;
   difficulty: "Easy" | "Medium" | "Hard";
   repeat: { type: string; days: string[]; selectedDate?: string };
-  category: "Faith" | "Discipline" | "Focus" | "Fitness" | "Wisdom";
+  category: "Faith" | "Focus" | "Fitness" | "Wisdom";
 };

@@ -9,9 +9,11 @@ import MonthlyPlan from "../../components/introScreenComponents/paywallComponent
 import PayWallCta from "../../components/introScreenComponents/paywallComponents/payWallCta/payWallCta";
 import PayWallSecondaryCta from "../../components/introScreenComponents/paywallComponents/payWallSecondaryCta/payWallSecondaryCta";
 import { PAYWALL_BENEFITS_DATA } from "../../lib/payWallBenfitsData";
+import { useSQLiteContext } from "expo-sqlite";
 
 export default function PayWall() {
   const { profile, setProfile } = useProfile();
+
   async function handlePress() {
     setProfile((prev) => ({ ...prev, paid: true }));
   }

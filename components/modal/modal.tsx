@@ -73,7 +73,13 @@ export default function ModalHabit({
       );
       return;
     }
-    const difficulty = estimateDifficulty(form);
+    // const difficulty = estimateDifficulty(form);
+    const difficultyLabels = ["Easy", "Medium", "Hard"];
+    const difficulty = difficultyLabels[sliderValue] as
+      | "Easy"
+      | "Medium"
+      | "Hard";
+
     dispatch({ type: "ADD_HABIT", payload: { ...form, difficulty } });
     handleClick();
   }
@@ -154,11 +160,11 @@ export default function ModalHabit({
             {form.repeat.type === "Custom" && (
               <RepeatCustom form={form} handleChangeText={handleChangeText} />
             )}
-            {/* <PickerInput
-            sliderValue={sliderValue}
-            setSliderValue={setSliderValue}
-            handleChangeText={handleChangeText}
-          /> */}
+            <PickerInput
+              sliderValue={sliderValue}
+              setSliderValue={setSliderValue}
+              handleChangeText={handleChangeText}
+            />
           </View>
         </ScrollView>
         <View style={styles.btnsContainer}>

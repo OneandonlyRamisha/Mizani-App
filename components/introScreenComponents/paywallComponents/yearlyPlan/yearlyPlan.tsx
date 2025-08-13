@@ -50,10 +50,9 @@ export default function YearlyPlan() {
 const styles = StyleSheet.create({
   yearlyPlanContainer: {
     marginTop: 15,
-    backgroundColor: GLOBAL_STYLES.secondaryBg,
+    backgroundColor: GLOBAL_STYLES.card,
     paddingHorizontal: 30,
     paddingVertical: 45,
-    borderRadius: 7,
     borderColor: GLOBAL_STYLES.accentColor75,
     borderWidth: 2,
     gap: 9,

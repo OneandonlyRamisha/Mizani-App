@@ -19,7 +19,7 @@ export default function StatusContainer({ loader }: { loader: number }) {
         </View>
         <View style={styles.status}>
           <Text style={styles.statusText}>Focus Level</Text>
-          {loader > 40 ? (
+          {loader > 45 ? (
             <Ionicons
               name="checkmark-circle"
               size={24}
@@ -39,7 +39,17 @@ export default function StatusContainer({ loader }: { loader: number }) {
         </View>
         <View style={styles.status}>
           <Text style={styles.statusText}>Fitness Level</Text>
-          {loader > 80 ? (
+          {loader > 75 ? (
+            <Ionicons
+              name="checkmark-circle"
+              size={24}
+              color={GLOBAL_STYLES.accentColor}
+            />
+          ) : undefined}
+        </View>
+        <View style={styles.status}>
+          <Text style={styles.statusText}>Financial Level</Text>
+          {loader > 90 ? (
             <Ionicons
               name="checkmark-circle"
               size={24}
@@ -49,7 +59,7 @@ export default function StatusContainer({ loader }: { loader: number }) {
         </View>
         <View style={styles.status}>
           <Text style={styles.statusText}>Wisdom Level</Text>
-          {loader > 98 ? (
+          {loader > 99 ? (
             <Ionicons
               name="checkmark-circle"
               size={24}
@@ -70,14 +80,14 @@ const styles = StyleSheet.create({
     backgroundColor: GLOBAL_STYLES.card,
     borderColor: GLOBAL_STYLES.secondaryBg,
     borderWidth: 1,
-    borderRadius: 12,
     gap: 20,
   },
   statusHeader: {
     textAlign: "center",
-    fontSize: 20,
+    fontSize: 22,
     color: GLOBAL_STYLES.primaryColor,
-    fontWeight: 500,
+    // fontWeight: 500,
+    fontFamily: "Cinzel-Semi-Bold",
   },
   statuses: { gap: 2 },
   status: {
@@ -88,7 +98,8 @@ const styles = StyleSheet.create({
   },
   statusText: {
     color: GLOBAL_STYLES.primaryColor,
-    fontWeight: 500,
+    // fontWeight: 500,
+    fontFamily: "Cinzel-Regular",
     fontSize: 15,
   },
 });

@@ -18,6 +18,7 @@ const initialProfile = {
   totalXP: 0,
   age: "18-24",
   paid: false,
+  streak: [],
   stats: {
     overall: 0,
     discipline: 0,

@@ -5,42 +5,48 @@ import {
   StyleSheet,
   StyleProp,
   ViewStyle,
+  Pressable,
 } from "react-native";
 import { GLOBAL_STYLES } from "../../../lib/globalStyles";
 
 export default function NextBtn({
   onPress,
-  customStyles,
+  selected,
 }: {
   onPress: () => void;
-  customStyles?: StyleProp<ViewStyle>;
+  selected?: boolean;
 }) {
   return (
-    <TouchableOpacity style={[styles.btn, customStyles]} onPress={onPress}>
-      <Text style={styles.btnText}>Continue</Text>
-      <AntDesign
-        name="arrowright"
-        size={24}
-        color={GLOBAL_STYLES.primaryColor}
-      />
-    </TouchableOpacity>
+    <Pressable
+      style={[styles.btn, selected ? styles.activeContainer : null]}
+      onPress={selected ? onPress : () => {}}
+    >
+      <Text style={[styles.btnText, selected ? styles.activeText : null]}>
+        Continue
+      </Text>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   btn: {
-    backgroundColor: GLOBAL_STYLES.accentColor75,
-    flexDirection: "row",
-    gap: 10,
-    padding: 12,
+    borderWidth: 1,
+    borderColor: GLOBAL_STYLES.progressBarBg,
+    padding: 20,
     width: "100%",
-    borderRadius: 7,
     alignItems: "center",
     justifyContent: "center",
   },
   btnText: {
-    color: GLOBAL_STYLES.primaryColor,
+    color: GLOBAL_STYLES.secondaryColor,
     fontSize: 18,
-    fontWeight: 600,
+    fontFamily: "Cinzel-Medium",
+  },
+  activeContainer: {
+    borderColor: GLOBAL_STYLES.accentColor20,
+    backgroundColor: GLOBAL_STYLES.card,
+  },
+  activeText: {
+    color: GLOBAL_STYLES.accentColor75,
   },
 });
