@@ -7,7 +7,6 @@ import {
   Alert,
   ScrollView,
 } from "react-native";
-import { BlurView } from "expo-blur";
 import { GLOBAL_STYLES } from "../../lib/globalStyles";
 import { useEffect, useState } from "react";
 import { useHabits } from "../../store/habits";
@@ -20,7 +19,6 @@ import PickerInput from "./inputs/pickerInput/pickerInput";
 import ModalBtn from "./modalBtn/modalBtn";
 import ModalHeader from "./modalHeader/modalHeader";
 import { Habit } from "../../types/habit";
-import { estimateDifficulty } from "../../lib/difficultyEstimate";
 export default function ModalHabit({
   setModalVisible,
   visible,
@@ -75,7 +73,7 @@ export default function ModalHabit({
     }
     // const difficulty = estimateDifficulty(form);
     const difficultyLabels = ["Easy", "Medium", "Hard"];
-    const difficulty = difficultyLabels[sliderValue] as
+    const difficulty = (difficultyLabels[sliderValue] ?? "Medium") as
       | "Easy"
       | "Medium"
       | "Hard";

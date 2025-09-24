@@ -9,6 +9,7 @@ import { useProfile } from "../../store/profile";
 import calculateStatGain from "../../lib/statGainedCalculator";
 import calculateStreak from "../../lib/calcStreak";
 import { Profile } from "../../types/profile";
+import { useSQLiteContext } from "expo-sqlite";
 
 type CategoryKey = "discipline" | "focus" | "wisdom" | "fitness" | "faith";
 
@@ -37,98 +38,35 @@ export default function HabitsComponent({
 }) {
   const { habits, dispatch } = useHabits();
   const { profile, setProfile } = useProfile();
+  const db = useSQLiteContext();
 
-  function handleComplete(id: string) {
-    const habit = habits.find((item) => item.id === id);
-    if (!habit) return;
-
-    const categoryKey = habit.category.toLowerCase() as CategoryKey;
-
-    const gain = calculateStatGain(
-      profile.stats[categoryKey],
-      habit.difficulty
-    );
-    const todayStr = new Date().toLocaleDateString("en-CA").split("T")[0];
-    const isCompleted = habit.completed.includes(todayStr);
-
-    let updatedCompleted = [...habit.completed];
-
-    if (isCompleted) {
-      // uncheck - remove date
-      updatedCompleted = updatedCompleted.filter((d) => d !== todayStr);
-    } else {
-      // check - add date
-      updatedCompleted.push(todayStr);
-    }
-
-    // Recalculate streak based on new list
-    const newStreak = calculateStreak(updatedCompleted, habit.repeat);
-
-    // Update XP
-    setProfile((prev) => {
-      const newStatValue = Math.max(
-        0,
-        prev.stats[categoryKey] + (isCompleted ? -gain : gain)
-      );
-
-      const updatedStats = {
-        ...prev.stats,
-        [categoryKey]: newStatValue,
-      };
-
-      const updatedOverall =
-        (updatedStats.discipline +
-          updatedStats.faith +
-          updatedStats.focus +
-          updatedStats.fitness +
-          updatedStats.wisdom +
-          updatedStats.finance) /
-        6;
-
-      return {
-        ...prev,
-        stats: {
-          ...updatedStats,
-          overall: updatedOverall,
-        },
-      };
-    });
-
-    dispatch({
-      type: "TOGGLE_HABIT",
-      payload: { id, date: todayStr, streak: newStreak },
-    });
-  }
-  // const db = useSQLiteContext();
-  // async function updateProfileInDB(updatedProfile: Profile) {
-  //   await db.runAsync(`UPDATE profiles SET stats = ? WHERE name = ?`, [
-  //     JSON.stringify(updatedProfile.stats),
-  //     profile.name,
-  //   ]);
-  // }
-
-  // function handleComplete(id: string) {
+  // async function handleComplete(id: string) {
   //   const habit = habits.find((item) => item.id === id);
   //   if (!habit) return;
 
   //   const categoryKey = habit.category.toLowerCase() as CategoryKey;
+
   //   const gain = calculateStatGain(
   //     profile.stats[categoryKey],
   //     habit.difficulty
   //   );
-  //   const todayStr = new Date().toISOString().split("T")[0];
+  //   const todayStr = new Date().toLocaleDateString("en-CA").split("T")[0];
   //   const isCompleted = habit.completed.includes(todayStr);
 
   //   let updatedCompleted = [...habit.completed];
 
   //   if (isCompleted) {
+  //     // uncheck - remove date
   //     updatedCompleted = updatedCompleted.filter((d) => d !== todayStr);
   //   } else {
+  //     // check - add date
   //     updatedCompleted.push(todayStr);
   //   }
 
+  //   // Recalculate streak based on new list
   //   const newStreak = calculateStreak(updatedCompleted, habit.repeat);
 
+  //   // Update XP
   //   setProfile((prev) => {
   //     const newStatValue = Math.max(
   //       0,
@@ -145,20 +83,17 @@ export default function HabitsComponent({
   //         updatedStats.faith +
   //         updatedStats.focus +
   //         updatedStats.fitness +
-  //         updatedStats.wisdom) /
-  //       5;
+  //         updatedStats.wisdom +
+  //         updatedStats.finance) /
+  //       6;
 
-  //     const updatedProfile = {
+  //     return {
   //       ...prev,
   //       stats: {
   //         ...updatedStats,
   //         overall: updatedOverall,
   //       },
   //     };
-
-  //     updateProfileInDB(updatedProfile); // async call, no await here
-
-  //     return updatedProfile;
   //   });
 
   //   dispatch({
@@ -167,83 +102,90 @@ export default function HabitsComponent({
   //   });
   // }
 
+  async function handleComplete(id: string) {
+    const habit = habits.find((item) => item.id === id);
+    if (!habit) return;
+
+    const categoryKey = habit.category.toLowerCase() as CategoryKey;
+    const gain = calculateStatGain(
+      profile.stats[categoryKey],
+      habit.difficulty
+    );
+
+    const todayStr = new Date().toLocaleDateString("en-CA").split("T")[0];
+    const isCompleted = habit.completed.includes(todayStr);
+
+    let updatedCompleted = [...habit.completed];
+    if (isCompleted) {
+      updatedCompleted = updatedCompleted.filter((d) => d !== todayStr);
+    } else {
+      updatedCompleted.push(todayStr);
+    }
+
+    const newStreak = calculateStreak(updatedCompleted, habit.repeat);
+
+    // --- FIX START: compute updatedProfile BEFORE setProfile ---
+    const newStatValue = Math.max(
+      0,
+      profile.stats[categoryKey] + (isCompleted ? -gain : gain)
+    );
+
+    const updatedStats = {
+      ...profile.stats,
+      [categoryKey]: newStatValue,
+    };
+
+    const updatedOverall =
+      (updatedStats.discipline +
+        updatedStats.faith +
+        updatedStats.focus +
+        updatedStats.fitness +
+        updatedStats.wisdom +
+        updatedStats.finance) /
+      6;
+
+    const updatedProfile: Profile = {
+      ...profile,
+      stats: {
+        ...updatedStats,
+        overall: updatedOverall,
+      },
+    };
+
+    setProfile(updatedProfile);
+    // --- FIX END ---
+
+    // Save profile to SQLite
+    await db.runAsync(
+      `INSERT OR REPLACE INTO profile 
+    (id, name, level, currentXP, totalXP, age, paid, streak, stats, milestones)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        1,
+        updatedProfile.name,
+        updatedProfile.level,
+        updatedProfile.currentXP,
+        updatedProfile.totalXP,
+        updatedProfile.age,
+        updatedProfile.paid ? 1 : 0,
+        JSON.stringify(updatedProfile.streak),
+        JSON.stringify(updatedProfile.stats),
+        JSON.stringify(updatedProfile.milestones),
+      ]
+    );
+
+    // Update habit in Redux / state
+    dispatch({
+      type: "TOGGLE_HABIT",
+      payload: { id, date: todayStr, streak: newStreak },
+    });
+  }
+
   function handleEditMode(id: string) {
     setEditMode(id);
     setModalVisible(true);
-    console.log(id);
-    console.log(completed);
   }
   return (
-    // <Pressable
-    //   key={id}
-    //   style={[styles.container, completed ? styles.completed : undefined]}
-    //   onPress={() => handleEditMode(id)}
-    // >
-    //   <View style={styles.contentContainer}>
-    //     <View style={styles.content}>
-    //       <Text
-    //         style={[
-    //           styles.title,
-    //           completed ? styles.completedTitle : undefined,
-    //         ]}
-    //       >
-    //         {name}
-    //       </Text>
-    //       <View style={styles.desContainer}>
-    //         {/* <CategoryComponent category={category} /> */}
-    //         {/* <DifficultyComponent difficulty={difficulty} /> */}
-    //         <Text style={styles.desText}>{category}</Text>
-    //         <Text style={styles.desText}>&#183;</Text>
-    //         <Text style={styles.desText}>{difficulty}</Text>
-    //       </View>
-    //       <View style={styles.xpContainer}>
-    //         <View style={styles.streakContainer}>
-    //           <MaterialIcons
-    //             name="local-fire-department"
-    //             size={14}
-    //             color="red"
-    //           />
-    //           <Text style={styles.steakText}>{streak} days streak</Text>
-    //         </View>
-    //       </View>
-    //     </View>
-    //   </View>
-    //   <View>
-    //     {completed ? (
-    //       <Pressable
-    //         style={{
-    //           flex: 1,
-    //           alignItems: "center",
-    //           justifyContent: "center",
-    //         }}
-    //         onPress={() => handleComplete(id)}
-    //       >
-    //         <MaterialIcons
-    //           name="check-circle-outline"
-    //           size={34}
-    //           color={GLOBAL_STYLES.accentColor}
-    //           style={{ zIndex: 100 }}
-    //         />
-    //       </Pressable>
-    //     ) : (
-    //       <Pressable
-    //         style={{
-    //           flex: 1,
-    //           alignItems: "center",
-    //           justifyContent: "center",
-    //         }}
-    //         onPress={() => handleComplete(id)}
-    //       >
-    //         <MaterialIcons
-    //           name="radio-button-unchecked"
-    //           size={34}
-    //           color={GLOBAL_STYLES.secondaryColor}
-    //           style={{ zIndex: 100 }}
-    //         />
-    //       </Pressable>
-    //     )}
-    //   </View>
-    // </Pressable>
     <Pressable
       key={id}
       style={[styles.container, completed ? styles.completed : undefined]}

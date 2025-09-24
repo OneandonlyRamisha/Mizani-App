@@ -14,8 +14,25 @@ import { useSQLiteContext } from "expo-sqlite";
 export default function PayWall() {
   const { profile, setProfile } = useProfile();
 
+  const db = useSQLiteContext();
+
+  // async function handlePress() {
+  //   setProfile((prev) => ({ ...prev, paid: true }));
+  // }
+
   async function handlePress() {
-    setProfile((prev) => ({ ...prev, paid: true }));
+    // 1. Update context
+    setProfile((prev) => {
+      const updated = { ...prev, paid: true };
+
+      // 2. Update SQLite
+      db.runAsync(
+        "UPDATE profile SET paid = ? WHERE id = ?",
+        [1, 1] // paid = 1 (true), profile always id = 1
+      );
+
+      return updated;
+    });
   }
 
   return (

@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { Profile } from "../../types/profile";
 import { useProfile } from "../../store/profile";
 import { MILESTONES_DATA } from "../../lib/milestonesData";
+import { useSQLiteContext } from "expo-sqlite";
 
 export default function QuestionaryScreen({
   question,
@@ -46,6 +47,8 @@ export default function QuestionaryScreen({
 
   const [selected, setSelected] = useState<boolean>(true);
 
+  const db = useSQLiteContext();
+
   useEffect(() => {
     if (form.name.length >= 1 && (question === 0 || active)) {
       setSelected(true);
@@ -53,6 +56,26 @@ export default function QuestionaryScreen({
       setSelected(false);
     }
   }, [form.name, active, question]);
+
+  // const handlePress = async () => {
+  //   setActive(null);
+
+  //   if (question < QUESTIONERY.length - 1) {
+  //     setQuestion(question + 1);
+  //   } else {
+  //     const overall = Object.values(form.stats).reduce((a, b) => a + b, 0) / 6;
+
+  //     setProfile({
+  //       ...form,
+  //       stats: {
+  //         ...form.stats,
+  //         overall: overall,
+  //       },
+  //     });
+
+  //     setActiveScreen("loadingScreen");
+  //   }
+  // };
 
   const handlePress = async () => {
     setActive(null);
@@ -62,17 +85,44 @@ export default function QuestionaryScreen({
     } else {
       const overall = Object.values(form.stats).reduce((a, b) => a + b, 0) / 6;
 
-      setProfile({
+      const finalProfile: Profile = {
         ...form,
         stats: {
           ...form.stats,
           overall: overall,
         },
-      });
+      };
 
+      // 1. Save to context
+      setProfile(finalProfile);
+
+      // 2. Save to SQLite
+      await db.runAsync(
+        `INSERT OR REPLACE INTO profile 
+        (id, name, level, currentXP, totalXP, age, paid, streak, stats, milestones) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          1,
+          finalProfile.name,
+          finalProfile.level,
+          finalProfile.currentXP,
+          finalProfile.totalXP,
+          finalProfile.age,
+          finalProfile.paid ? 1 : 0,
+          JSON.stringify(finalProfile.streak),
+          JSON.stringify(finalProfile.stats),
+          JSON.stringify(finalProfile.milestones),
+        ]
+      );
+
+      // 3. Debug: log out the table to confirm
+      const rows = await db.getAllAsync("SELECT * FROM profile");
+
+      // 4. Continue flow
       setActiveScreen("loadingScreen");
     }
   };
+
   return (
     <View style={styles.contentContainer}>
       <View style={{ gap: 20 }}>

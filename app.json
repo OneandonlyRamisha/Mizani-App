@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mizani",
-    "slug": "mizani",
+    "name": "mizaniapp",
+    "slug": "mizaniapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,7 +13,8 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ramisha.mizapp"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,7 +22,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.luka.mizani"
+      "package": "com.ramisha.mizapp"
     },
     "web": {
       "favicon": "./assets/icon.png"
@@ -32,7 +33,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "be801f2a-b687-408a-8b86-d19be33c7971"
+        "projectId": "6c32bf7f-95e6-48db-8168-fd346deca40f"
       }
     }
   }

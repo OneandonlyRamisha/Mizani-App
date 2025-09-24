@@ -13,6 +13,8 @@ import Svg, { Polygon } from "react-native-svg";
 import { MaterialIcons } from "@expo/vector-icons";
 
 import { useProfile } from "../../store/profile";
+import { Profile } from "../../types/profile";
+import { useSQLiteContext } from "expo-sqlite";
 
 export default function DashboardScreen() {
   const { habits } = useHabits();
@@ -49,11 +51,9 @@ export default function DashboardScreen() {
     item.completed.includes(todayStr)
   ).length;
 
-  console.log(todayHabits.length + " " + completedCount);
-
   const [modalVisible, setModalVisible] = useState(false);
   const [editMode, setEditMode] = useState<null | string>(null);
-
+  const db = useSQLiteContext();
   const floatAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -88,6 +88,7 @@ export default function DashboardScreen() {
 
   //     let updatedProfile = prev;
 
+  //     // Update streak
   //     if (completedCount === todayHabits.length) {
   //       if (lastStreakDate !== todayStr && lastStreakDate === yesterdayStr) {
   //         updatedProfile = { ...prev, streak: [...streak, todayStr] };
@@ -106,44 +107,124 @@ export default function DashboardScreen() {
   //       }
   //     }
 
+  //     // Calculate days missed since last discipline update
+  //     const lastUpdateStr =
+  //       prev.lastDisciplineUpdate || prev.lastUpdateDate || "";
+  //     const lastUpdateDate = lastUpdateStr ? new Date(lastUpdateStr) : null;
+  //     const todayDate = new Date(today);
+
+  //     let daysMissed = 0;
+  //     if (lastUpdateDate) {
+  //       const diffTime = todayDate.getTime() - lastUpdateDate.getTime();
+  //       daysMissed = Math.floor(diffTime / (1000 * 60 * 60 * 24)) - 1; // exclude yesterday
+  //       if (daysMissed < 0) daysMissed = 0;
+  //     }
+
+  //     // Decay for missed days: 5% per missed day
+  //     const decayRate = 0.05;
+  //     let newDiscipline = updatedProfile.stats.discipline || 0;
+  //     if (daysMissed > 0) {
+  //       newDiscipline = newDiscipline * Math.pow(1 - decayRate, daysMissed);
+  //     }
+
+  //     // Add or remove points for today toggle
   //     const pointsToday = prev.pointsAwardedDates || [];
   //     const hasAwardedToday = pointsToday.includes(todayStr);
-  //     const pointsToAdd = 0.1;
+  //     const pointsToAdd = 0.15;
 
   //     if (completedCount === todayHabits.length && !hasAwardedToday) {
+  //       newDiscipline = Math.min(100, newDiscipline + pointsToAdd);
   //       updatedProfile = {
   //         ...updatedProfile,
   //         stats: {
   //           ...updatedProfile.stats,
-  //           discipline: (updatedProfile.stats.discipline || 0) + pointsToAdd,
+  //           discipline: newDiscipline,
   //         },
   //         pointsAwardedDates: [...pointsToday, todayStr],
+  //         lastDisciplineUpdate: todayStr,
   //       };
   //     } else if (completedCount !== todayHabits.length && hasAwardedToday) {
+  //       newDiscipline = Math.max(0, newDiscipline - pointsToAdd);
   //       updatedProfile = {
   //         ...updatedProfile,
   //         stats: {
   //           ...updatedProfile.stats,
-  //           discipline: Math.max(
-  //             0,
-  //             (updatedProfile.stats.discipline || 0) - pointsToAdd
-  //           ),
+  //           discipline: newDiscipline,
   //         },
   //         pointsAwardedDates: pointsToday.filter((d) => d !== todayStr),
+  //         lastDisciplineUpdate: todayStr,
+  //       };
+  //     } else {
+  //       // Just update discipline decay without adding/removing points today
+  //       updatedProfile = {
+  //         ...updatedProfile,
+  //         stats: {
+  //           ...updatedProfile.stats,
+  //           discipline: newDiscipline,
+  //         },
+  //         lastDisciplineUpdate: todayStr,
   //       };
   //     }
+
+  //     // Calculate overall after discipline update
+  //     const newOverall =
+  //       (newDiscipline +
+  //         (updatedProfile.stats.faith || 0) +
+  //         (updatedProfile.stats.finance || 0) +
+  //         (updatedProfile.stats.fitness || 0) +
+  //         (updatedProfile.stats.focus || 0) +
+  //         (updatedProfile.stats.wisdom || 0)) /
+  //       6;
+
+  //     updatedProfile = {
+  //       ...updatedProfile,
+  //       stats: {
+  //         ...updatedProfile.stats,
+  //         overall: newOverall,
+  //       },
+  //     };
 
   //     return updatedProfile;
   //   });
   // }, [completedCount, todayHabits.length, todayStr]);
+
   useEffect(() => {
     if (todayHabits.length === 0) return;
 
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-    const yesterdayStr = yesterday.toLocaleDateString("en-CA");
+    const updateProfileInDB = async (updatedProfile: Profile) => {
+      try {
+        await db.runAsync(
+          `INSERT OR REPLACE INTO profile 
+        (id, name, level, currentXP, totalXP, age, paid, streak, stats, milestones, pointsAwardedDates, lastDisciplineUpdate) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            1,
+            updatedProfile.name,
+            updatedProfile.level,
+            updatedProfile.currentXP,
+            updatedProfile.totalXP,
+            updatedProfile.age,
+            updatedProfile.paid ? 1 : 0,
+            JSON.stringify(updatedProfile.streak),
+            JSON.stringify(updatedProfile.stats),
+            JSON.stringify(updatedProfile.milestones),
+            JSON.stringify(updatedProfile.pointsAwardedDates || []),
+            updatedProfile.lastDisciplineUpdate || "",
+          ]
+        );
+
+        const rows = await db.getAllAsync("SELECT * FROM profile");
+        console.log("PROFILE TABLE UPDATED:", rows);
+      } catch (err) {
+        console.error("Error updating profile in DB:", err);
+      }
+    };
 
     setProfile((prev) => {
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toLocaleDateString("en-CA");
+
       const streak = prev.streak || [];
       const lastStreakDate = streak.length ? streak[streak.length - 1] : null;
 
@@ -177,18 +258,18 @@ export default function DashboardScreen() {
       let daysMissed = 0;
       if (lastUpdateDate) {
         const diffTime = todayDate.getTime() - lastUpdateDate.getTime();
-        daysMissed = Math.floor(diffTime / (1000 * 60 * 60 * 24)) - 1; // exclude yesterday
+        daysMissed = Math.floor(diffTime / (1000 * 60 * 60 * 24)) - 1;
         if (daysMissed < 0) daysMissed = 0;
       }
 
-      // Decay for missed days: 5% per missed day
+      // Decay for missed days
       const decayRate = 0.05;
       let newDiscipline = updatedProfile.stats.discipline || 0;
       if (daysMissed > 0) {
         newDiscipline = newDiscipline * Math.pow(1 - decayRate, daysMissed);
       }
 
-      // Add or remove points for today toggle
+      // Add/remove points for today
       const pointsToday = prev.pointsAwardedDates || [];
       const hasAwardedToday = pointsToday.includes(todayStr);
       const pointsToAdd = 0.15;
@@ -197,10 +278,7 @@ export default function DashboardScreen() {
         newDiscipline = Math.min(100, newDiscipline + pointsToAdd);
         updatedProfile = {
           ...updatedProfile,
-          stats: {
-            ...updatedProfile.stats,
-            discipline: newDiscipline,
-          },
+          stats: { ...updatedProfile.stats, discipline: newDiscipline },
           pointsAwardedDates: [...pointsToday, todayStr],
           lastDisciplineUpdate: todayStr,
         };
@@ -208,26 +286,19 @@ export default function DashboardScreen() {
         newDiscipline = Math.max(0, newDiscipline - pointsToAdd);
         updatedProfile = {
           ...updatedProfile,
-          stats: {
-            ...updatedProfile.stats,
-            discipline: newDiscipline,
-          },
+          stats: { ...updatedProfile.stats, discipline: newDiscipline },
           pointsAwardedDates: pointsToday.filter((d) => d !== todayStr),
           lastDisciplineUpdate: todayStr,
         };
       } else {
-        // Just update discipline decay without adding/removing points today
         updatedProfile = {
           ...updatedProfile,
-          stats: {
-            ...updatedProfile.stats,
-            discipline: newDiscipline,
-          },
+          stats: { ...updatedProfile.stats, discipline: newDiscipline },
           lastDisciplineUpdate: todayStr,
         };
       }
 
-      // Calculate overall after discipline update
+      // Update overall
       const newOverall =
         (newDiscipline +
           (updatedProfile.stats.faith || 0) +
@@ -239,11 +310,11 @@ export default function DashboardScreen() {
 
       updatedProfile = {
         ...updatedProfile,
-        stats: {
-          ...updatedProfile.stats,
-          overall: newOverall,
-        },
+        stats: { ...updatedProfile.stats, overall: newOverall },
       };
+
+      // Save to DB
+      updateProfileInDB(updatedProfile);
 
       return updatedProfile;
     });
