@@ -8,7 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 import { GLOBAL_STYLES } from "../../lib/globalStyles";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useHabits } from "../../store/habits";
 import NameInput from "./inputs/nameInput";
 import CategoryInput from "./inputs/categoryInput/categoryInput";
@@ -19,6 +19,20 @@ import PickerInput from "./inputs/pickerInput/pickerInput";
 import ModalBtn from "./modalBtn/modalBtn";
 import ModalHeader from "./modalHeader/modalHeader";
 import { Habit } from "../../types/habit";
+import { formatDateKey } from "../../lib/dateUtils";
+
+function buildInitialForm(): Habit {
+  return {
+    id: Date.now().toString(),
+    name: "",
+    createDate: formatDateKey(new Date()),
+    completed: [],
+    streak: 0,
+    difficulty: "Medium",
+    repeat: { type: "Daily", days: [] },
+    category: "Faith",
+  };
+}
 export default function ModalHabit({
   setModalVisible,
   visible,
@@ -30,31 +44,42 @@ export default function ModalHabit({
   editMode: string | null;
   setEditMode: React.Dispatch<React.SetStateAction<string | null>>;
 }) {
-  const initialForm: Habit = {
-    id: Date.now().toString(),
-    name: "",
-    createDate: new Date().toLocaleDateString("en-CA").split("T")[0],
-    completed: [],
-    streak: 0,
-    difficulty: "Medium",
-    repeat: { type: "Daily", days: [] },
-    category: "Faith",
-  };
-  const [form, setForm] = useState(initialForm);
+  const [form, setForm] = useState<Habit>(() => buildInitialForm());
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const { habits, dispatch } = useHabits();
   const editing = editMode !== null;
   const [sliderValue, setSliderValue] = useState(1);
 
+  const difficultyLabels = useMemo(() => ["Easy", "Medium", "Hard"], []);
+
   useEffect(() => {
-    if (editing) {
-      const currectHabit = habits.find((item) => item.id === editMode);
-      if (currectHabit) {
-        setForm(currectHabit);
-      }
+    if (!editing) {
+      setForm(buildInitialForm());
+      setSliderValue(1);
+      setSelectedDate(null);
+      return;
     }
-  }, [editing, habits, editMode]);
+
+    const currentHabit = habits.find((item) => item.id === editMode);
+    if (!currentHabit) {
+      return;
+    }
+
+    setForm(currentHabit);
+    setSliderValue(
+      Math.max(
+        0,
+        difficultyLabels.indexOf(currentHabit.difficulty ?? "Medium")
+      )
+    );
+
+    if (currentHabit.repeat.type === "Once") {
+      setSelectedDate(currentHabit.repeat.selectedDate ?? null);
+    } else {
+      setSelectedDate(null);
+    }
+  }, [difficultyLabels, editMode, editing, habits]);
 
   function handleAdd() {
     if (!form.name) {
@@ -71,14 +96,17 @@ export default function ModalHabit({
       );
       return;
     }
-    // const difficulty = estimateDifficulty(form);
-    const difficultyLabels = ["Easy", "Medium", "Hard"];
-    const difficulty = (difficultyLabels[sliderValue] ?? "Medium") as
-      | "Easy"
-      | "Medium"
-      | "Hard";
+    const difficulty = (difficultyLabels[sliderValue] ?? "Medium") as Habit["difficulty"];
 
-    dispatch({ type: "ADD_HABIT", payload: { ...form, difficulty } });
+    dispatch({
+      type: "ADD_HABIT",
+      payload: {
+        ...form,
+        id: Date.now().toString(),
+        createDate: formatDateKey(new Date()),
+        difficulty,
+      },
+    });
     handleClick();
   }
 
@@ -127,12 +155,12 @@ export default function ModalHabit({
   function handleClick() {
     setModalVisible((prev) => !prev);
     setEditMode(null);
-    setForm(initialForm);
+    setForm(buildInitialForm());
     setSelectedDate(null);
     setSliderValue(1);
   }
 
-  function handleChangeText(field: string, value: any) {
+  function handleChangeText<K extends keyof Habit>(field: K, value: Habit[K]) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
   return (

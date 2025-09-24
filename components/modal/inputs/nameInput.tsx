@@ -1,13 +1,13 @@
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import { GLOBAL_STYLES } from "../../../lib/globalStyles";
+import { Habit } from "../../../types/habit";
 
-export default function NameInput({
-  form,
-  handleChangeText,
-}: {
-  form: { name: string };
-  handleChangeText: (field: string, value: any) => void;
-}) {
+type Props = {
+  form: Pick<Habit, "name">;
+  handleChangeText: <K extends keyof Habit>(field: K, value: Habit[K]) => void;
+};
+
+export default function NameInput({ form, handleChangeText }: Props) {
   return (
     <View style={styles.inputContainer}>
       <Text style={styles.inputTitle}>Habit Name</Text>

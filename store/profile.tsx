@@ -1,67 +1,20 @@
-// import React, {
-//   createContext,
-//   useReducer,
-//   useContext,
-//   ReactNode,
-//   useState,
-// } from "react";
-// import { Habit } from "../types/habit";
-// import { Profile } from "../types/profile";
-// import { MILESTONES_DATA } from "../lib/milestonesData";
-
-// const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
-// const initialProfile = {
-//   name: "",
-//   milestones: MILESTONES_DATA,
-//   level: 1,
-//   currentXP: 0,
-//   totalXP: 0,
-//   age: "18-24",
-//   paid: false,
-//   streak: [],
-//   stats: {
-//     overall: 0,
-//     discipline: 0,
-//     focus: 0,
-//     wisdom: 0,
-//     fitness: 0,
-//     faith: 0,
-//     finance: 0,
-//   },
-// };
-
-// type ProfileContextType = {
-//   profile: Profile;
-//   setProfile: React.Dispatch<React.SetStateAction<Profile>>;
-// };
-
-// export function ProfileProvider({ children }: { children: ReactNode }) {
-//   const [profile, setProfile] = useState<Profile>(initialProfile);
-//   return (
-//     <ProfileContext.Provider value={{ profile, setProfile }}>
-//       {children}
-//     </ProfileContext.Provider>
-//   );
-// }
-
-// export function useProfile() {
-//   const context = useContext(ProfileContext);
-//   if (!context) {
-//     throw new Error("useProfile must be used within a ProfileProvider");
-//   }
-//   return context;
-// }
-
 import React, {
   createContext,
+  type ReactNode,
   useContext,
-  useState,
   useEffect,
-  ReactNode,
+  useState,
 } from "react";
 import { useSQLiteContext } from "expo-sqlite";
+
 import { Profile } from "../types/profile";
 import { MILESTONES_DATA } from "../lib/milestonesData";
+import { persistProfile } from "../lib/profileStorage";
+
+type ProfileContextType = {
+  profile: Profile;
+  setProfile: React.Dispatch<React.SetStateAction<Profile>>;
+};
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
@@ -83,11 +36,7 @@ const initialProfile: Profile = {
     faith: 0,
     finance: 0,
   },
-};
-
-type ProfileContextType = {
-  profile: Profile;
-  setProfile: React.Dispatch<React.SetStateAction<Profile>>;
+  pointsAwardedDates: [],
 };
 
 export function ProfileProvider({ children }: { children: ReactNode }) {
@@ -95,42 +44,44 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile>(initialProfile);
 
   useEffect(() => {
+    let isMounted = true;
+
     const loadProfile = async () => {
       try {
         const row = await db.getFirstAsync<any>("SELECT * FROM profile");
+        if (!isMounted) return;
+
         if (row) {
           setProfile({
-            ...row,
+            name: row.name ?? initialProfile.name,
+            level: row.level ?? initialProfile.level,
+            currentXP: row.currentXP ?? initialProfile.currentXP,
+            totalXP: row.totalXP ?? initialProfile.totalXP,
+            age: row.age ?? initialProfile.age,
             paid: !!row.paid,
-            milestones: row.milestones
-              ? JSON.parse(row.milestones)
-              : MILESTONES_DATA,
-            streak: row.streak ? JSON.parse(row.streak) : [],
-            stats: row.stats ? JSON.parse(row.stats) : initialProfile.stats,
+            streak: safelyParseJson(row.streak, []),
+            stats: safelyParseJson(row.stats, initialProfile.stats),
+            milestones: safelyParseJson(row.milestones, MILESTONES_DATA),
+            pointsAwardedDates: safelyParseJson(row.pointsAwardedDates, []),
+            lastDisciplineUpdate: row.lastDisciplineUpdate || undefined,
+            lastUpdateDate: row.lastUpdateDate || undefined,
           });
         } else {
-          // insert default if none exists
-          await db.runAsync(
-            `INSERT INTO profile (name, level, currentXP, totalXP, age, paid, milestones, streak, stats) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-              initialProfile.name,
-              initialProfile.level,
-              initialProfile.currentXP,
-              initialProfile.totalXP,
-              initialProfile.age,
-              initialProfile.paid ? 1 : 0,
-              JSON.stringify(initialProfile.milestones),
-              JSON.stringify(initialProfile.streak),
-              JSON.stringify(initialProfile.stats),
-            ]
-          );
+          await persistProfile(db, initialProfile);
+          if (isMounted) {
+            setProfile(initialProfile);
+          }
         }
-      } catch (err) {
-        console.error("Failed to load profile:", err);
+      } catch (error) {
+        console.error("Failed to load profile:", error);
       }
     };
+
     loadProfile();
+
+    return () => {
+      isMounted = false;
+    };
   }, [db]);
 
   return (
@@ -140,9 +91,23 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   );
 }
 
+function safelyParseJson<T>(value: string | null | undefined, fallback: T): T {
+  if (!value) {
+    return fallback;
+  }
+
+  try {
+    return JSON.parse(value) as T;
+  } catch (error) {
+    console.error("Failed to parse profile value:", error);
+    return fallback;
+  }
+}
+
 export function useProfile() {
   const context = useContext(ProfileContext);
-  if (!context)
+  if (!context) {
     throw new Error("useProfile must be used within a ProfileProvider");
+  }
   return context;
 }

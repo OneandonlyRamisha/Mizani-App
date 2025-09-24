@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet } from "react-native";
 import Slider from "@react-native-community/slider";
 import { GLOBAL_STYLES } from "../../../../lib/globalStyles";
+import { Habit } from "../../../../types/habit";
 
 export default function PickerInput({
   sliderValue,
@@ -9,9 +10,13 @@ export default function PickerInput({
 }: {
   sliderValue: number;
   setSliderValue: React.Dispatch<React.SetStateAction<number>>;
-  handleChangeText: (field: string, value: any) => void;
+  handleChangeText: <K extends keyof Habit>(field: K, value: Habit[K]) => void;
 }) {
-  const difficultyLabels = ["Easy", "Medium", "Hard"];
+  const difficultyLabels: Habit["difficulty"][] = [
+    "Easy",
+    "Medium",
+    "Hard",
+  ];
 
   return (
     <View>

@@ -1,8 +1,6 @@
-import { View, TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NAV_DATA, SCREEN_OPTIONS } from "../../lib/navData";
-import { GLOBAL_STYLES } from "../../lib/globalStyles";
 import { useEffect } from "react";
 import {
   registerForPushNotifications,
@@ -13,11 +11,16 @@ const Tab = createBottomTabNavigator();
 
 export default function MainScreen() {
   useEffect(() => {
-    // Notifications logic
-    (async () => {
-      await registerForPushNotifications();
-      await scheduleDailyNotifications();
-    })();
+    const configureNotifications = async () => {
+      try {
+        await registerForPushNotifications();
+        await scheduleDailyNotifications();
+      } catch (error) {
+        console.error("Failed to configure notifications:", error);
+      }
+    };
+
+    void configureNotifications();
   }, []);
   return (
     <NavigationContainer>

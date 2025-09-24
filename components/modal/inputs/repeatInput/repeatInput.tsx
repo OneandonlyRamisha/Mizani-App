@@ -1,14 +1,38 @@
 import { View, Pressable, Text, StyleSheet } from "react-native";
 import { GLOBAL_STYLES } from "../../../../lib/globalStyles";
+import { Habit, HabitRepeat } from "../../../../types/habit";
 
 export default function RepeatInput({
   form,
   handleChangeText,
 }: {
-  form: { repeat: { type: string; days: string[] } };
-  handleChangeText: (field: string, value: any) => void;
+  form: Pick<Habit, "repeat">;
+  handleChangeText: <K extends keyof Habit>(field: K, value: Habit[K]) => void;
 }) {
-  const FREQUENCY_REPEAT = ["Daily", "Once", "Custom"];
+  const FREQUENCY_REPEAT: HabitRepeat["type"][] = [
+    "Daily",
+    "Once",
+    "Custom",
+  ];
+
+  const handleFrequencyPress = (frequency: HabitRepeat["type"]) => {
+    switch (frequency) {
+      case "Once":
+        handleChangeText("repeat", {
+          type: "Once",
+          days: [],
+          selectedDate:
+            form.repeat.type === "Once" ? form.repeat.selectedDate : undefined,
+        });
+        break;
+      case "Custom":
+        handleChangeText("repeat", { type: "Custom", days: [] });
+        break;
+      default:
+        handleChangeText("repeat", { type: "Daily", days: [] });
+        break;
+    }
+  };
   return (
     <View style={styles.inputContainer}>
       <Text style={styles.inputTitle}>Repeat</Text>
@@ -20,7 +44,7 @@ export default function RepeatInput({
               styles.frequency,
               form.repeat.type === freq ? styles.active : undefined,
             ]}
-            onPress={() => handleChangeText("repeat", { type: freq, days: [] })}
+            onPress={() => handleFrequencyPress(freq)}
           >
             <Text
               style={[

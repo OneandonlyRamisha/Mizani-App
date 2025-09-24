@@ -7,7 +7,7 @@ export default function RepeatCustom({
   handleChangeText,
 }: {
   form: Habit;
-  handleChangeText: (field: string, value: any) => void;
+  handleChangeText: <K extends keyof Habit>(field: K, value: Habit[K]) => void;
 }) {
   const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 

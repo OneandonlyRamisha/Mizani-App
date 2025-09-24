@@ -16,15 +16,18 @@ export default function RepeatOnce({
   form: Habit;
   selectedDate: string | null;
   setSelectedDate: React.Dispatch<React.SetStateAction<string | null>>;
-  handleChangeText: (field: string, value: any) => void;
+  handleChangeText: <K extends keyof Habit>(field: K, value: Habit[K]) => void;
 }) {
+  const activeSelection =
+    form.repeat.type === "Once" ? form.repeat.selectedDate : undefined;
+
   return (
     <View style={styles.inputContainer}>
       <Text style={styles.inputTitle}>Select Date</Text>
 
       <Pressable style={styles.input} onPress={() => setShowCalendar(true)}>
         <Text style={{ color: GLOBAL_STYLES.primaryColor }}>
-          {form.repeat.selectedDate || "Pick your day"}
+          {activeSelection || "Pick your day"}
         </Text>
       </Pressable>
 

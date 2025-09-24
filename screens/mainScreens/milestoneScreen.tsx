@@ -2,10 +2,13 @@ import { Text, View } from "react-native";
 import ScreenContainer from "../../components/screenContainer/screenContainer";
 import MainHeader from "../../components/mainHeader/mainHeader";
 import MilestonesComponent from "../../components/milestonesComponent/milestonesComponent";
-import { useProfile } from "../../store/profile";
 import { useEffect } from "react";
-import { useHabits } from "../../store/habits";
 import { useSQLiteContext } from "expo-sqlite";
+
+import { useProfile } from "../../store/profile";
+import { useHabits } from "../../store/habits";
+import { updateMilestonesFromHabits } from "../../lib/profileProgress";
+import { persistProfile } from "../../lib/profileStorage";
 
 export default function MilestoneScreen() {
   const { profile, setProfile } = useProfile();
@@ -42,45 +45,17 @@ export default function MilestoneScreen() {
   //   }));
   // }, [habits]);
   useEffect(() => {
-    const uniqueDaysPerPillar: Record<string, Set<string>> = {};
+    const updatedProfile = updateMilestonesFromHabits(profile, habits);
 
-    habits.forEach((habit) => {
-      const pillar = habit.category;
-      if (!uniqueDaysPerPillar[pillar]) uniqueDaysPerPillar[pillar] = new Set();
-      habit.completed.forEach((date) => uniqueDaysPerPillar[pillar].add(date));
-    });
+    if (updatedProfile === profile) {
+      return;
+    }
 
-    const updatedMilestones = profile.milestones.map((m) => {
-      const completed = uniqueDaysPerPillar[m.pillar]?.size >= m.daysRequired;
-      return { ...m, completed };
-    });
-
-    const newProfile = { ...profile, milestones: updatedMilestones };
-
-    // 1. Save to context
-    setProfile(newProfile);
-
-    // 2. Save to SQLite
-    db.runAsync(
-      `INSERT OR REPLACE INTO profile 
-       (id, name, level, currentXP, totalXP, age, paid, streak, stats, milestones)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        1,
-        newProfile.name,
-        newProfile.level,
-        newProfile.currentXP,
-        newProfile.totalXP,
-        newProfile.age,
-        newProfile.paid ? 1 : 0,
-        JSON.stringify(newProfile.streak),
-        JSON.stringify(newProfile.stats),
-        JSON.stringify(newProfile.milestones),
-      ]
-    )
-      .then(() => console.log("Milestones updated in SQLite"))
-      .catch((err) => console.error("SQLite update error:", err));
-  }, [habits]);
+    setProfile(updatedProfile);
+    void persistProfile(db, updatedProfile).catch((error) =>
+      console.error("Failed to persist milestone updates:", error)
+    );
+  }, [db, habits, profile, setProfile]);
   return (
     <ScreenContainer>
       <MainHeader
