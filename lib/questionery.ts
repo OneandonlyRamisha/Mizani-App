@@ -20,7 +20,7 @@ export const QUESTIONERY = [
 
   {
     question: "How often do you train?",
-    field: "health",
+    field: "fitness",
     options: [
       { option: "5 times a week or more", stat: 79 },
       { option: "2-4 times a week", stat: 63 },
@@ -73,6 +73,16 @@ export const QUESTIONERY = [
       },
       { option: "I rarely engage in deep focused work", stat: 49 },
       { option: "I struggle to keep my focus", stat: 36 },
+    ],
+  },
+  {
+    question: "How happy are you with your current financial situation?",
+    field: "finance",
+    options: [
+      { option: "I'm very satisfied and feel financially secure", stat: 85 },
+      { option: "I'm doing okay but want to improve", stat: 65 },
+      { option: "I often feel stressed about money", stat: 45 },
+      { option: "I'm not happy with my financial situation at all", stat: 30 },
     ],
   },
 ];

@@ -31,17 +31,14 @@ export default function LoadingScreen({
     <View style={styles.container}>
       <View style={{ width: "100%", alignItems: "center", gap: 20 }}>
         <Text style={styles.percentageCounter}>{loader}%</Text>
-        <Text style={styles.header}>We're calculating your stats</Text>
+        <Text style={styles.header}>we're calculating your stats</Text>
 
         <ProgressBarIntroPage progress={loader} />
         <LoaderSubHeader loader={loader} />
         <StatusContainer loader={loader} />
       </View>
 
-      <NextBtn
-        onPress={handlePress}
-        customStyles={[styles.btn, loader !== 100 ? undefined : styles.active]}
-      />
+      <NextBtn onPress={handlePress} selected={loader === 100 ? true : false} />
     </View>
   );
 }
@@ -50,22 +47,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    paddingTop: 60,
+    // paddingTop: 60,
 
-    paddingBottom: 20,
+    // paddingBottom: 20,
     justifyContent: "space-between",
   },
   percentageCounter: {
     fontSize: 55,
     letterSpacing: 3,
-    fontWeight: 700,
+    // fontWeight: 700,
+    fontFamily: "Cinzel-Semi-Bold",
     color: GLOBAL_STYLES.primaryColor,
   },
   header: {
     color: GLOBAL_STYLES.primaryColor,
-    fontSize: 24,
+    fontSize: 32,
     textAlign: "center",
     fontWeight: 600,
+    fontFamily: "Cinzel-Medium",
   },
 
   btn: {

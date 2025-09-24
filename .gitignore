@@ -9,6 +9,9 @@ dist/
 web-build/
 expo-env.d.ts
 
+/android
+/ios
+
 # Native
 .kotlin/
 *.orig.*
@@ -19,7 +22,7 @@ expo-env.d.ts
 *.mobileprovision
 
 # Metro
-.metro-health-check*
+.metro-fitness-check*
 
 # debug
 npm-debug.*

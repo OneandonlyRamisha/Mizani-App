@@ -42,7 +42,7 @@ export default function PickerInput({
 const styles = StyleSheet.create({
   inputTitle: {
     fontSize: GLOBAL_STYLES.subHeader,
-    color: GLOBAL_STYLES.secondaryColor,
-    fontWeight: 500,
+    color: GLOBAL_STYLES.primaryColor,
+    fontFamily: "Cinzel-Medium",
   },
 });

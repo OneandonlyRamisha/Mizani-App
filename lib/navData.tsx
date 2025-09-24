@@ -52,7 +52,7 @@ export const SCREEN_OPTIONS = {
   ),
   headerStatusBarHeight: 0,
   tabBarStyle: {
-    height: 100,
+    height: 72,
     borderTopWidth: 0,
     elevation: 0,
     shadowOpacity: 0,

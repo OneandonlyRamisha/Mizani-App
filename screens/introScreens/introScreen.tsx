@@ -6,12 +6,17 @@ import LoadingScreen from "./loadingScreen";
 import StatsShowScreen from "./statsShowScreen";
 import QuestionaryScreen from "./questionaryScreen";
 import PayWall from "./paywall";
+import WelcomeScreen from "./welcomeScreen";
 
 export default function IntroScreen({}: {}) {
   const [question, setQuestion] = useState<number>(0);
-  const [activeScreen, setActiveScreen] = useState("questionary");
+  const [activeScreen, setActiveScreen] = useState("welcomeScreen");
 
   const screens = [
+    {
+      name: "welcomeScreen",
+      component: <WelcomeScreen setActiveScreen={setActiveScreen} />,
+    },
     {
       name: "questionary",
       component: (
@@ -48,6 +53,7 @@ const styles = StyleSheet.create({
     backgroundColor: GLOBAL_STYLES.bg,
     alignContent: "center",
     justifyContent: "space-between",
-    padding: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 9,
   },
 });

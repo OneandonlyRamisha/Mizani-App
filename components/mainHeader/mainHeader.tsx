@@ -40,7 +40,7 @@ export default function MainHeader({
         progressBarData={{
           height: 12,
           width: (totalCompletedXp / totalXp) * 100,
-          colors: GLOBAL_STYLES.blueProgressBar,
+          colors: GLOBAL_STYLES.mainGradient,
         }}
       />
     </LinearGradient>
@@ -54,7 +54,6 @@ const styles = StyleSheet.create({
     elevation: 6,
     borderColor: GLOBAL_STYLES.accentColor20,
     borderWidth: 1,
-    borderRadius: 16,
     gap: 24,
   },
   headerPartContainer: {

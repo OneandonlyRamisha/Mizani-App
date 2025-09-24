@@ -9,11 +9,30 @@ import MonthlyPlan from "../../components/introScreenComponents/paywallComponent
 import PayWallCta from "../../components/introScreenComponents/paywallComponents/payWallCta/payWallCta";
 import PayWallSecondaryCta from "../../components/introScreenComponents/paywallComponents/payWallSecondaryCta/payWallSecondaryCta";
 import { PAYWALL_BENEFITS_DATA } from "../../lib/payWallBenfitsData";
+import { useSQLiteContext } from "expo-sqlite";
 
 export default function PayWall() {
-  const { setProfile } = useProfile();
-  function handlePress() {
-    setProfile((prev) => ({ ...prev, paid: true }));
+  const { profile, setProfile } = useProfile();
+
+  const db = useSQLiteContext();
+
+  // async function handlePress() {
+  //   setProfile((prev) => ({ ...prev, paid: true }));
+  // }
+
+  async function handlePress() {
+    // 1. Update context
+    setProfile((prev) => {
+      const updated = { ...prev, paid: true };
+
+      // 2. Update SQLite
+      db.runAsync(
+        "UPDATE profile SET paid = ? WHERE id = ?",
+        [1, 1] // paid = 1 (true), profile always id = 1
+      );
+
+      return updated;
+    });
   }
 
   return (
@@ -26,6 +45,7 @@ export default function PayWall() {
             <Text style={styles.benefitHeader}>WHAT YOU GET</Text>
             {PAYWALL_BENEFITS_DATA.map((benefit) => (
               <PayWallBenefits
+                key={benefit.subHeader}
                 header={benefit.header}
                 icon={benefit.icon}
                 subHeader={benefit.subHeader}

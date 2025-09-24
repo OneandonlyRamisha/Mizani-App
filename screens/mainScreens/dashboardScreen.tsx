@@ -1,21 +1,38 @@
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, Image, Animated, Easing } from "react-native";
 import ScreenContainer from "../../components/screenContainer/screenContainer";
 import MainHeader from "../../components/mainHeader/mainHeader";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { GLOBAL_STYLES } from "../../lib/globalStyles";
 import HabitsComponent from "../../components/habitsComponent/habitsComponent";
 import AddHabitBtn from "../../components/addHabitBtn/addHabitBtn";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ModalHabit from "../../components/modal/modal";
 import { useHabits } from "../../store/habits";
 import { DIFFICULTY_POINTS } from "../../lib/xp";
+import Svg, { Polygon } from "react-native-svg";
+import { MaterialIcons } from "@expo/vector-icons";
+
+import { useProfile } from "../../store/profile";
+import { Profile } from "../../types/profile";
+import { useSQLiteContext } from "expo-sqlite";
 
 export default function DashboardScreen() {
   const { habits } = useHabits();
+  const { profile, setProfile } = useProfile();
 
   const today = new Date();
   const dayName = today.toLocaleDateString("en-US", { weekday: "short" });
   const todayStr = today.toLocaleDateString("en-CA").split("T")[0];
+
+  const headerDayName = today
+    .toLocaleDateString("en-US", { weekday: "long" })
+    .toLowerCase(); // e.g., "thursday"
+  const day = today.getDate(); // e.g., 7
+  const monthName = today
+    .toLocaleDateString("en-US", { month: "long" })
+    .toLowerCase(); // e.g., "august"
+
+  const HeaderDates = `${headerDayName}, ${day} ${monthName}`;
 
   const todayHabits = useMemo(() => {
     return habits.filter((habit) => {
@@ -30,23 +47,366 @@ export default function DashboardScreen() {
       return false;
     });
   }, [habits]);
-
-  const completedTodaysTasks = todayHabits.filter((item) =>
+  const completedCount = todayHabits.filter((item) =>
     item.completed.includes(todayStr)
   ).length;
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editMode, setEditMode] = useState<null | string>(null);
+  const db = useSQLiteContext();
+  const floatAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, {
+          toValue: -9, // move up 5px
+          duration: 2700,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnim, {
+          toValue: 0, // back down
+          duration: 2700,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
+  // useEffect(() => {
+  //   if (todayHabits.length === 0) return;
+
+  //   const yesterday = new Date(today);
+  //   yesterday.setDate(today.getDate() - 1);
+  //   const yesterdayStr = yesterday.toLocaleDateString("en-CA");
+
+  //   setProfile((prev) => {
+  //     const streak = prev.streak || [];
+  //     const lastStreakDate = streak.length ? streak[streak.length - 1] : null;
+
+  //     let updatedProfile = prev;
+
+  //     // Update streak
+  //     if (completedCount === todayHabits.length) {
+  //       if (lastStreakDate !== todayStr && lastStreakDate === yesterdayStr) {
+  //         updatedProfile = { ...prev, streak: [...streak, todayStr] };
+  //       } else if (lastStreakDate !== todayStr) {
+  //         updatedProfile = { ...prev, streak: [todayStr] };
+  //       }
+  //     } else {
+  //       if (lastStreakDate === todayStr) {
+  //         updatedProfile = { ...prev, streak: streak.slice(0, -1) };
+  //       } else if (
+  //         lastStreakDate &&
+  //         lastStreakDate !== yesterdayStr &&
+  //         lastStreakDate !== todayStr
+  //       ) {
+  //         updatedProfile = { ...prev, streak: [] };
+  //       }
+  //     }
+
+  //     // Calculate days missed since last discipline update
+  //     const lastUpdateStr =
+  //       prev.lastDisciplineUpdate || prev.lastUpdateDate || "";
+  //     const lastUpdateDate = lastUpdateStr ? new Date(lastUpdateStr) : null;
+  //     const todayDate = new Date(today);
+
+  //     let daysMissed = 0;
+  //     if (lastUpdateDate) {
+  //       const diffTime = todayDate.getTime() - lastUpdateDate.getTime();
+  //       daysMissed = Math.floor(diffTime / (1000 * 60 * 60 * 24)) - 1; // exclude yesterday
+  //       if (daysMissed < 0) daysMissed = 0;
+  //     }
+
+  //     // Decay for missed days: 5% per missed day
+  //     const decayRate = 0.05;
+  //     let newDiscipline = updatedProfile.stats.discipline || 0;
+  //     if (daysMissed > 0) {
+  //       newDiscipline = newDiscipline * Math.pow(1 - decayRate, daysMissed);
+  //     }
+
+  //     // Add or remove points for today toggle
+  //     const pointsToday = prev.pointsAwardedDates || [];
+  //     const hasAwardedToday = pointsToday.includes(todayStr);
+  //     const pointsToAdd = 0.15;
+
+  //     if (completedCount === todayHabits.length && !hasAwardedToday) {
+  //       newDiscipline = Math.min(100, newDiscipline + pointsToAdd);
+  //       updatedProfile = {
+  //         ...updatedProfile,
+  //         stats: {
+  //           ...updatedProfile.stats,
+  //           discipline: newDiscipline,
+  //         },
+  //         pointsAwardedDates: [...pointsToday, todayStr],
+  //         lastDisciplineUpdate: todayStr,
+  //       };
+  //     } else if (completedCount !== todayHabits.length && hasAwardedToday) {
+  //       newDiscipline = Math.max(0, newDiscipline - pointsToAdd);
+  //       updatedProfile = {
+  //         ...updatedProfile,
+  //         stats: {
+  //           ...updatedProfile.stats,
+  //           discipline: newDiscipline,
+  //         },
+  //         pointsAwardedDates: pointsToday.filter((d) => d !== todayStr),
+  //         lastDisciplineUpdate: todayStr,
+  //       };
+  //     } else {
+  //       // Just update discipline decay without adding/removing points today
+  //       updatedProfile = {
+  //         ...updatedProfile,
+  //         stats: {
+  //           ...updatedProfile.stats,
+  //           discipline: newDiscipline,
+  //         },
+  //         lastDisciplineUpdate: todayStr,
+  //       };
+  //     }
+
+  //     // Calculate overall after discipline update
+  //     const newOverall =
+  //       (newDiscipline +
+  //         (updatedProfile.stats.faith || 0) +
+  //         (updatedProfile.stats.finance || 0) +
+  //         (updatedProfile.stats.fitness || 0) +
+  //         (updatedProfile.stats.focus || 0) +
+  //         (updatedProfile.stats.wisdom || 0)) /
+  //       6;
+
+  //     updatedProfile = {
+  //       ...updatedProfile,
+  //       stats: {
+  //         ...updatedProfile.stats,
+  //         overall: newOverall,
+  //       },
+  //     };
+
+  //     return updatedProfile;
+  //   });
+  // }, [completedCount, todayHabits.length, todayStr]);
+
+  useEffect(() => {
+    if (todayHabits.length === 0) return;
+
+    const updateProfileInDB = async (updatedProfile: Profile) => {
+      try {
+        await db.runAsync(
+          `INSERT OR REPLACE INTO profile 
+        (id, name, level, currentXP, totalXP, age, paid, streak, stats, milestones, pointsAwardedDates, lastDisciplineUpdate) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            1,
+            updatedProfile.name,
+            updatedProfile.level,
+            updatedProfile.currentXP,
+            updatedProfile.totalXP,
+            updatedProfile.age,
+            updatedProfile.paid ? 1 : 0,
+            JSON.stringify(updatedProfile.streak),
+            JSON.stringify(updatedProfile.stats),
+            JSON.stringify(updatedProfile.milestones),
+            JSON.stringify(updatedProfile.pointsAwardedDates || []),
+            updatedProfile.lastDisciplineUpdate || "",
+          ]
+        );
+
+        const rows = await db.getAllAsync("SELECT * FROM profile");
+        console.log("PROFILE TABLE UPDATED:", rows);
+      } catch (err) {
+        console.error("Error updating profile in DB:", err);
+      }
+    };
+
+    setProfile((prev) => {
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toLocaleDateString("en-CA");
+
+      const streak = prev.streak || [];
+      const lastStreakDate = streak.length ? streak[streak.length - 1] : null;
+
+      let updatedProfile = prev;
+
+      // Update streak
+      if (completedCount === todayHabits.length) {
+        if (lastStreakDate !== todayStr && lastStreakDate === yesterdayStr) {
+          updatedProfile = { ...prev, streak: [...streak, todayStr] };
+        } else if (lastStreakDate !== todayStr) {
+          updatedProfile = { ...prev, streak: [todayStr] };
+        }
+      } else {
+        if (lastStreakDate === todayStr) {
+          updatedProfile = { ...prev, streak: streak.slice(0, -1) };
+        } else if (
+          lastStreakDate &&
+          lastStreakDate !== yesterdayStr &&
+          lastStreakDate !== todayStr
+        ) {
+          updatedProfile = { ...prev, streak: [] };
+        }
+      }
+
+      // Calculate days missed since last discipline update
+      const lastUpdateStr =
+        prev.lastDisciplineUpdate || prev.lastUpdateDate || "";
+      const lastUpdateDate = lastUpdateStr ? new Date(lastUpdateStr) : null;
+      const todayDate = new Date(today);
+
+      let daysMissed = 0;
+      if (lastUpdateDate) {
+        const diffTime = todayDate.getTime() - lastUpdateDate.getTime();
+        daysMissed = Math.floor(diffTime / (1000 * 60 * 60 * 24)) - 1;
+        if (daysMissed < 0) daysMissed = 0;
+      }
+
+      // Decay for missed days
+      const decayRate = 0.05;
+      let newDiscipline = updatedProfile.stats.discipline || 0;
+      if (daysMissed > 0) {
+        newDiscipline = newDiscipline * Math.pow(1 - decayRate, daysMissed);
+      }
+
+      // Add/remove points for today
+      const pointsToday = prev.pointsAwardedDates || [];
+      const hasAwardedToday = pointsToday.includes(todayStr);
+      const pointsToAdd = 0.15;
+
+      if (completedCount === todayHabits.length && !hasAwardedToday) {
+        newDiscipline = Math.min(100, newDiscipline + pointsToAdd);
+        updatedProfile = {
+          ...updatedProfile,
+          stats: { ...updatedProfile.stats, discipline: newDiscipline },
+          pointsAwardedDates: [...pointsToday, todayStr],
+          lastDisciplineUpdate: todayStr,
+        };
+      } else if (completedCount !== todayHabits.length && hasAwardedToday) {
+        newDiscipline = Math.max(0, newDiscipline - pointsToAdd);
+        updatedProfile = {
+          ...updatedProfile,
+          stats: { ...updatedProfile.stats, discipline: newDiscipline },
+          pointsAwardedDates: pointsToday.filter((d) => d !== todayStr),
+          lastDisciplineUpdate: todayStr,
+        };
+      } else {
+        updatedProfile = {
+          ...updatedProfile,
+          stats: { ...updatedProfile.stats, discipline: newDiscipline },
+          lastDisciplineUpdate: todayStr,
+        };
+      }
+
+      // Update overall
+      const newOverall =
+        (newDiscipline +
+          (updatedProfile.stats.faith || 0) +
+          (updatedProfile.stats.finance || 0) +
+          (updatedProfile.stats.fitness || 0) +
+          (updatedProfile.stats.focus || 0) +
+          (updatedProfile.stats.wisdom || 0)) /
+        6;
+
+      updatedProfile = {
+        ...updatedProfile,
+        stats: { ...updatedProfile.stats, overall: newOverall },
+      };
+
+      // Save to DB
+      updateProfileInDB(updatedProfile);
+
+      return updatedProfile;
+    });
+  }, [completedCount, todayHabits.length, todayStr]);
 
   return (
     <>
       <ScreenContainer>
-        <MainHeader
+        {/* <MainHeader
           title="Today's Progress"
           totalCompletedXp={completedTodaysTasks}
           totalXp={todayHabits.length}
-        />
-        <AddHabitBtn setModalVisible={setModalVisible} />
+        /> */}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text style={styles.headerDate}>{HeaderDates}</Text>
+          <AddHabitBtn setModalVisible={setModalVisible} />
+        </View>
+
+        {/* 
+        <View
+          style={{
+            width: 150,
+            height: 150,
+            borderRadius: "50%",
+            borderWidth: 9,
+            borderColor: GLOBAL_STYLES.accentColor,
+            alignSelf: "center",
+            marginTop: 40,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {" "}
+          <Text
+            style={{
+              fontSize: 42,
+              fontWeight: 800,
+              color: GLOBAL_STYLES.accentColor,
+            }}
+          >
+            40%
+          </Text>
+        </View> */}
+
+        {/* <View style={styles.imgContainer}>
+          <Image
+            source={require("../../assets/dashboardImg.png")} // local image
+            style={styles.image}
+            resizeMode="contain"
+          />
+        </View> */}
+        <Animated.View
+          style={[
+            styles.imgContainer,
+            { transform: [{ translateY: floatAnim }] },
+          ]}
+        >
+          <Image
+            source={require("../../assets/dashboardImg.png")}
+            style={styles.image}
+            resizeMode="contain"
+          />
+        </Animated.View>
+
+        <View style={styles.streakWrapper}>
+          <Svg width={250} height={50}>
+            <Polygon
+              points="20,0 250,0 230,50 0,50"
+              fill={GLOBAL_STYLES.accentColor20}
+              stroke={GLOBAL_STYLES.accentColor50}
+              strokeWidth="1"
+            />
+          </Svg>
+          <View style={styles.streakContent}>
+            <MaterialIcons
+              name="local-fire-department"
+              size={18}
+              color={GLOBAL_STYLES.accentColor}
+            />
+            <Text style={styles.streakText}>
+              {profile.streak.length}-DAY STREAK
+            </Text>
+          </View>
+        </View>
+
+        {/* <AddHabitBtn setModalVisible={setModalVisible} /> */}
 
         <Text style={styles.title}>TODAY'S BATTLES</Text>
 
@@ -58,7 +418,7 @@ export default function DashboardScreen() {
               setEditMode={setEditMode}
               key={data.id}
               name={data.name}
-              completed={data.completed?.includes(todayStr) ?? false}
+              completed={data.completed.includes(todayStr) ? true : false}
               category={data.category}
               id={data.id}
               difficulty={data.difficulty}
@@ -94,5 +454,63 @@ const styles = StyleSheet.create({
   bodyContainer: {
     marginVertical: 24,
     gap: 14,
+  },
+  headerDate: {
+    color: GLOBAL_STYLES.primaryColor,
+    fontSize: 16,
+    fontFamily: "Cinzel-Regular",
+  },
+  streakContainer: {
+    marginTop: 20,
+    flexDirection: "row",
+    gap: 5,
+    backgroundColor: GLOBAL_STYLES.accentColor20,
+    alignSelf: "center",
+    paddingVertical: 9,
+    paddingHorizontal: 30,
+    borderTopColor: GLOBAL_STYLES.accentColor50,
+    borderBottomColor: GLOBAL_STYLES.accentColor50,
+    borderWidth: 1,
+    // border-left: 3px solid transparent,
+
+    // clipPath: polygon(3px 0%, 297px 0%, 100% 100%, 0% 100%);
+  },
+  streakWrapper: {
+    alignSelf: "center",
+    marginTop: 20,
+    position: "relative",
+    width: 250,
+    height: 50,
+    alignItems: "center",
+  },
+  streakContent: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: 250,
+    height: 50,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 5,
+  },
+  streakText: {
+    fontFamily: "Cinzel-Regular",
+    color: GLOBAL_STYLES.accentColor,
+    fontSize: 16,
+  },
+  imgContainer: {
+    marginTop: 10,
+    alignSelf: "center",
+  },
+  image: {
+    width: 300,
+    height: 300,
+    // backgroundColor: "red",
+    // height: "50%",
+
+    // aspectRatio: 1,
+
+    alignSelf: "center",
   },
 });

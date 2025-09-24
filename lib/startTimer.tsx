@@ -18,11 +18,23 @@ export function startTimer(
         interval = setInterval(() => {
           current += 1;
           setLoader(current);
+          if (current >= 98) {
+            clearInterval(interval);
 
+            // Crawl after 98
+            interval = setInterval(() => {
+              current += 1;
+              setLoader(current);
+
+              if (current >= 100) {
+                clearInterval(interval);
+              }
+            }, 2000);
+          }
           if (current >= 100) {
             clearInterval(interval);
           }
-        }, 200); // slower step
+        }, 250); // slower step
       }
     }, 90); // fast step
   };

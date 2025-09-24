@@ -29,15 +29,19 @@ const styles = StyleSheet.create({
   },
   inputTitle: {
     fontSize: GLOBAL_STYLES.subHeader,
-    color: GLOBAL_STYLES.secondaryColor,
-    fontWeight: 500,
+    color: GLOBAL_STYLES.primaryColor,
+    fontFamily: "Cinzel-Medium",
   },
   input: {
     width: "100%",
-    height: 55,
+    // height: 55,
     padding: 20,
-    backgroundColor: GLOBAL_STYLES.progressBarBg,
-    borderRadius: 8,
+    backgroundColor: GLOBAL_STYLES.card,
+    borderWidth: 1,
+    borderColor: "#333",
+
     color: GLOBAL_STYLES.secondaryColor,
+    fontSize: 14,
+    fontFamily: "Cinzel-Regular",
   },
 });

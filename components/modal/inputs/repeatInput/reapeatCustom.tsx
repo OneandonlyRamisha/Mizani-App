@@ -15,7 +15,7 @@ export default function RepeatCustom({
     <View style={styles.container}>
       {weekDays.map((item) => (
         <Pressable
-          style={[{ width: "49%" }]}
+          style={[{ width: "32.6%" }]}
           onPress={() => {
             const days = form.repeat.days.includes(item)
               ? form.repeat.days.filter((d) => d !== item)
@@ -44,20 +44,18 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     flexWrap: "wrap",
-    gap: "2%",
+    gap: "1%",
   },
   customDates: {
     color: GLOBAL_STYLES.primaryColor,
-    borderWidth: 1,
     paddingVertical: 20,
     textAlign: "center",
-
-    borderRadius: 12,
+    fontFamily: "Cinzel-Medium",
     backgroundColor: GLOBAL_STYLES.progressBarBg,
   },
   active: {
-    backgroundColor: GLOBAL_STYLES.accentColor10,
-    borderColor: GLOBAL_STYLES.accentColor50,
-    borderWidth: 1,
+    backgroundColor: GLOBAL_STYLES.accentColor,
+    color: GLOBAL_STYLES.bg,
+    // borderWidth: 1,
   },
 });

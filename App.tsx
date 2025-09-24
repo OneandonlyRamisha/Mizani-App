@@ -5,6 +5,8 @@ import { HabitProvider } from "./store/habits";
 import IntroScreen from "./screens/introScreens/introScreen";
 import { ProfileProvider, useProfile } from "./store/profile";
 import { useFonts } from "expo-font";
+import * as SQLite from "expo-sqlite";
+import { DatabaseProvider } from "./lib/SQLite/databaseProvider";
 
 function AppContent() {
   const { profile } = useProfile();
@@ -23,20 +25,20 @@ export default function App() {
   return (
     <View style={{ flex: 1 }}>
       <StatusBar style="light" />
-      <ProfileProvider>
-        <HabitProvider>
-          <AppContent />
-        </HabitProvider>
-      </ProfileProvider>
+      <DatabaseProvider>
+        <ProfileProvider>
+          <HabitProvider>
+            <AppContent />
+          </HabitProvider>
+        </ProfileProvider>
+      </DatabaseProvider>
     </View>
   );
 }
 
-// Tasks
-// 1. Update Streak logic that when you remove todays completed and redo it still has to keep the streak
-// 2. Update streak for custom dates
-// 3. Update Modal to make it look better
-// 4. Add SQLite
-// 5. Add Local Notifications
-// 6. Add Payments
-// bonus: when milestone is acheived make it apprear as a pop up
+// tasks
+// 1. Update Milestones For Disicipline
+// 2. add notifiactions
+// 9. Add Payment shit
+// 12. Fix Radar Chart Being Fucked up
+// 14. Move Functions into libs and call it to functions from there

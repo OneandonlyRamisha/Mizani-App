@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: GLOBAL_STYLES.bg,
-    paddingHorizontal: 10,
+    paddingHorizontal: 9,
     paddingBottom: 40,
     position: "relative",
   },

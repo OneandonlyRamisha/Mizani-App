@@ -15,53 +15,60 @@ export default function StatsGridComponents({
   };
 }) {
   return (
-    <LinearGradient
-      colors={stats.backgroundColor as [ColorValue, ColorValue]}
-      style={styles.stats}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 0 }}
-    >
-      <View>{stats.icon}</View>
-      <Text style={[styles.statTitle, { color: stats.color }]}>
-        {stats.name}
-      </Text>
-      <Text style={[styles.num, { color: stats.color }]}>
-        {stats.stat.toFixed(2)}
-      </Text>
+    <View style={styles.stats}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 9 }}>
+        <View>{stats.icon}</View>
+        <Text style={styles.statTitle}>{stats.name}</Text>
+      </View>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+        }}
+      >
+        <Text style={styles.num}>{stats.stat.toFixed(2)}</Text>
+        <Text style={{ color: GLOBAL_STYLES.secondaryColor }}>/100</Text>
+      </View>
       <View
         style={{
           backgroundColor: GLOBAL_STYLES.progressBarBg,
           width: "100%",
-          height: 12,
-          borderRadius: 120000,
+          height: 7,
         }}
       >
-        <View
-          style={{
-            width: `${stats.stat}%`,
-            height: 12,
-            backgroundColor: stats.color,
-            borderRadius: 12000,
-          }}
-        ></View>
+        <LinearGradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          colors={["#FACD37", "#B8732E"]}
+          style={{ width: `${stats.stat}%`, height: 7 }}
+        ></LinearGradient>
       </View>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   stats: {
-    width: "48%",
-    paddingVertical: 20,
-    paddingHorizontal: 25,
+    width: "49%",
+    borderWidth: 1,
     gap: 9,
-    borderRadius: 16,
+    backgroundColor: GLOBAL_STYLES.card,
+    borderColor: GLOBAL_STYLES.progressBarBg,
+    elevation: 2,
+    paddingHorizontal: 12,
+    paddingVertical: 16,
   },
   statTitle: {
-    fontSize: GLOBAL_STYLES.header,
-    fontWeight: 700,
+    fontSize: 18,
+    fontFamily: "Cinzel-Medium",
+    color: GLOBAL_STYLES.primaryColor,
   },
-  num: { fontSize: 24, fontWeight: 900 },
+  num: {
+    fontSize: 24,
+    fontFamily: "Cinzel-Medium",
+    color: GLOBAL_STYLES.accentColor,
+  },
   container: {
     flex: 1,
     justifyContent: "center",

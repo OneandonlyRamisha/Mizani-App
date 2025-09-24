@@ -11,22 +11,24 @@ import { useProfile } from "../../store/profile";
 import StatsButton from "../../components/statsButton/statsButton";
 import { getStatsData } from "../../lib/statsData";
 import MainHeader from "../../components/mainHeader/mainHeader";
+import { LinearGradient } from "expo-linear-gradient";
+import StatsMizanani from "../../components/statsMizani/statsMizani";
 
 export default function StatsScreen() {
   const [statType, setStatType] = useState("Grid");
   const { profile } = useProfile();
 
   const statsData = getStatsData(profile.stats);
+
   return (
     <ScreenContainer>
-      <MainHeader
-        title="Overall stat"
-        totalXp={100}
-        totalCompletedXp={profile.stats.overall}
-      />
+      <View>
+        <Text style={styles.header}>{profile.name}</Text>
+        <Text style={styles.subHeader}>This is your ability table</Text>
+      </View>
 
       <StatsButton setStatType={setStatType} statType={statType} />
-
+      <StatsMizanani />
       {statType === "Grid" ? (
         <View style={styles.statsContainer}>
           {statsData.map((stats) => (
@@ -44,7 +46,7 @@ const styles = StyleSheet.create({
   statsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
+    gap: 7,
     marginBottom: 20,
   },
   btnContainer: {
@@ -65,5 +67,20 @@ const styles = StyleSheet.create({
   },
   active: {
     backgroundColor: GLOBAL_STYLES.accentColor75,
+  },
+  header: {
+    textAlign: "center",
+    fontSize: 32,
+    fontFamily: "Cinzel-Semi-Bold",
+    // fontWeight: 800,
+    letterSpacing: 1.5,
+    color: GLOBAL_STYLES.primaryColor,
+  },
+  subHeader: {
+    textAlign: "center",
+    color: GLOBAL_STYLES.secondaryColor,
+    fontSize: 16,
+    letterSpacing: 1.5,
+    fontFamily: "Cinzel-Regular",
   },
 });

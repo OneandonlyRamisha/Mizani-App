@@ -1,21 +1,34 @@
-import { Ionicons, MaterialCommunityIcons, Fontisto } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { GLOBAL_STYLES } from "./globalStyles";
 import React from "react";
 import { Profile } from "../types/profile";
 
 export function getStatsData(stats: Profile["stats"]) {
   return [
+    // {
+    //   color: GLOBAL_STYLES.accentColor,
+    //   backgroundColor: [
+    //     GLOBAL_STYLES.accentColor10,
+    //     GLOBAL_STYLES.accentColor5,
+    //   ],
+    //   icon: (
+    //     <Ionicons name="diamond" size={24} color={GLOBAL_STYLES.accentColor} />
+    //   ),
+    //   name: "Overall",
+    //   stat: stats.overall,
+    // },
     {
-      color: GLOBAL_STYLES.accentColor,
-      backgroundColor: [
-        GLOBAL_STYLES.accentColor10,
-        GLOBAL_STYLES.accentColor5,
-      ],
+      color: GLOBAL_STYLES.orange,
+      backgroundColor: GLOBAL_STYLES.disciplineCardBgColor,
       icon: (
-        <Ionicons name="diamond" size={34} color={GLOBAL_STYLES.accentColor} />
+        <MaterialCommunityIcons
+          name="all-inclusive"
+          size={24}
+          color={GLOBAL_STYLES.accentColor}
+        />
       ),
-      name: "Overall",
-      stat: stats.overall,
+      name: "Discipline",
+      stat: stats.discipline,
     },
     {
       color: GLOBAL_STYLES.red,
@@ -23,8 +36,8 @@ export function getStatsData(stats: Profile["stats"]) {
       icon: (
         <MaterialCommunityIcons
           name="cross-bolnisi"
-          size={34}
-          color={GLOBAL_STYLES.red}
+          size={24}
+          color={GLOBAL_STYLES.accentColor}
         />
       ),
       name: "Faith",
@@ -32,44 +45,57 @@ export function getStatsData(stats: Profile["stats"]) {
     },
 
     {
-      color: GLOBAL_STYLES.orange,
-      backgroundColor: GLOBAL_STYLES.disciplineCardBgColor,
-      icon: (
-        <Ionicons
-          name="infinite-sharp"
-          size={34}
-          color={GLOBAL_STYLES.orange}
-        />
-      ),
-      name: "Discipline",
-      stat: stats.discipline,
-    },
-    {
       color: GLOBAL_STYLES.blue,
       backgroundColor: GLOBAL_STYLES.focusCardBgColor,
-      icon: <Fontisto name="locked" size={34} color={GLOBAL_STYLES.blue} />,
+      icon: (
+        <MaterialCommunityIcons
+          name="lock"
+          size={24}
+          color={GLOBAL_STYLES.accentColor}
+        />
+      ),
       name: "Focus",
       stat: stats.focus,
     },
     {
       color: GLOBAL_STYLES.green,
-      backgroundColor: GLOBAL_STYLES.healthCardBgColor,
-      icon: <Ionicons name="fitness" size={34} color={GLOBAL_STYLES.green} />,
-      name: "Health",
-      stat: stats.health,
+      backgroundColor: GLOBAL_STYLES.fitnessCardBgColor,
+      icon: (
+        <MaterialCommunityIcons
+          name="arm-flex"
+          size={24}
+          color={GLOBAL_STYLES.accentColor}
+        />
+      ),
+      name: "Fitness",
+      stat: stats.fitness,
     },
     {
       color: GLOBAL_STYLES.purple,
       backgroundColor: GLOBAL_STYLES.wisdomCardBgColor,
       icon: (
         <MaterialCommunityIcons
-          name="brain"
-          size={34}
-          color={GLOBAL_STYLES.purple}
+          name="head"
+          size={24}
+          color={GLOBAL_STYLES.accentColor}
         />
       ),
+
       name: "Wisdom",
       stat: stats.wisdom,
+    },
+    {
+      color: "#00E676",
+      backgroundColor: GLOBAL_STYLES.wisdomCardBgColor,
+      icon: (
+        <MaterialCommunityIcons
+          name="finance"
+          size={24}
+          color={GLOBAL_STYLES.accentColor}
+        />
+      ),
+      name: "Finance",
+      stat: stats.finance,
     },
   ];
 }
