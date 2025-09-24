@@ -2,9 +2,10 @@ import CalendarScreen from "../screens/mainScreens/calendarScreen";
 import DashboardScreen from "../screens/mainScreens/dashboardScreen";
 import MilestoneScreen from "../screens/mainScreens/milestoneScreen";
 import StatsScreen from "../screens/mainScreens/statsScreen";
-import { TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View, type ViewStyle } from "react-native";
 import { GLOBAL_STYLES } from "./globalStyles";
 import { AntDesign } from "@expo/vector-icons";
+import type { BottomTabNavigationOptions } from "@react-navigation/bottom-tabs";
 
 export const NAV_DATA = [
   {
@@ -45,7 +46,13 @@ export const NAV_DATA = [
   },
 ];
 
-export const SCREEN_OPTIONS = {
+const tabBarItemStyle: ViewStyle = {
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+};
+
+export const SCREEN_OPTIONS: BottomTabNavigationOptions = {
   headerTitle: () => null,
   headerBackground: () => (
     <View style={{ flex: 1, backgroundColor: GLOBAL_STYLES.bg }} />
@@ -57,11 +64,7 @@ export const SCREEN_OPTIONS = {
     elevation: 0,
     shadowOpacity: 0,
   },
-  tabBarItemStyle: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  tabBarItemStyle: tabBarItemStyle,
   tabBarLabel: () => null,
 
   tabBarButton: (props: any) => (
@@ -69,12 +72,7 @@ export const SCREEN_OPTIONS = {
       {...props}
       style={[
         props.style,
-        {
-          flex: 1,
-
-          alignItems: "center",
-          justifyContent: "center",
-        },
+        tabBarItemStyle,
       ]}
     />
   ),

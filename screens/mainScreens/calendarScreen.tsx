@@ -1,46 +1,32 @@
 import { Text, View, StyleSheet } from "react-native";
-import ScreenContainer from "../../components/screenContainer/screenContainer";
 import { useMemo, useState } from "react";
 import { Calendar } from "react-native-calendars";
+
+import ScreenContainer from "../../components/screenContainer/screenContainer";
 import { GLOBAL_STYLES } from "../../lib/globalStyles";
 import { useHabits } from "../../store/habits";
-import moment from "moment";
 import HabitsComponent from "../../components/habitsComponent/habitsComponent";
 import MainHeader from "../../components/mainHeader/mainHeader";
+import { formatDateKey } from "../../lib/dateUtils";
+import {
+  countCompletedHabits,
+  selectHabitsForDate,
+} from "../../lib/habitSelectors";
 
 export default function CalendarScreen() {
-  const today = new Date();
-  const todayStr = today.toLocaleDateString("en-CA").split("T")[0];
-
+  const todayStr = formatDateKey(new Date());
   const [selectedDate, setSelectedDate] = useState<string>(todayStr);
   const { habits } = useHabits();
 
-  const displayDate = useMemo(() => {
-    if (!selectedDate) return [];
+  const displayDate = useMemo(
+    () => selectHabitsForDate(habits, selectedDate),
+    [habits, selectedDate]
+  );
 
-    const dayName = new Date(selectedDate).toLocaleDateString("en-US", {
-      weekday: "short",
-    });
-
-    return habits.filter((habit) => {
-      const { type, days, selectedDate: habitDate } = habit.repeat;
-
-      const habitCreatedAt = habit.createDate; // depends on what you used
-      if (habitCreatedAt > selectedDate) return false;
-
-      if (type === "Daily") return true;
-
-      if (type === "Once" && habitDate === selectedDate) return true;
-
-      if (type === "Custom" && days.includes(dayName)) return true;
-
-      return false;
-    });
-  }, [habits, selectedDate]);
-
-  const completedArray = displayDate.filter((item) =>
-    item.completed.includes(selectedDate)
-  ).length;
+  const completedArray = useMemo(
+    () => countCompletedHabits(displayDate, selectedDate),
+    [displayDate, selectedDate]
+  );
 
   return (
     <ScreenContainer>

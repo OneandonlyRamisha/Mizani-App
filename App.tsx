@@ -5,7 +5,6 @@ import { HabitProvider } from "./store/habits";
 import IntroScreen from "./screens/introScreens/introScreen";
 import { ProfileProvider, useProfile } from "./store/profile";
 import { useFonts } from "expo-font";
-import * as SQLite from "expo-sqlite";
 import { DatabaseProvider } from "./lib/SQLite/databaseProvider";
 
 function AppContent() {
@@ -36,9 +35,3 @@ export default function App() {
   );
 }
 
-// tasks
-// 1. Update Milestones For Disicipline
-// 2. add notifiactions
-// 9. Add Payment shit
-// 12. Fix Radar Chart Being Fucked up
-// 14. Move Functions into libs and call it to functions from there

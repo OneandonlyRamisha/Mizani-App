@@ -1,15 +1,22 @@
 import { View, Text, StyleSheet, Platform } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import { GLOBAL_STYLES } from "../../../../lib/globalStyles";
+import { Habit } from "../../../../types/habit";
 
 export default function CategoryInput({
   handleChangeText,
   form,
 }: {
-  handleChangeText: (field: string, value: any) => void;
-  form: { category: string };
+  handleChangeText: <K extends keyof Habit>(field: K, value: Habit[K]) => void;
+  form: Pick<Habit, "category">;
 }) {
-  const categories = ["Faith", "Fitness", "Focus", "Wisdom", "Finance"];
+  const categories: Habit["category"][] = [
+    "Faith",
+    "Fitness",
+    "Focus",
+    "Wisdom",
+    "Finance",
+  ];
 
   return (
     <View style={styles.inputContainer}>
